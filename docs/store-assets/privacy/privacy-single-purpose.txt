@@ -1,0 +1,21 @@
+Focus Mode - Blocker serves a single purpose: helping users block distracting websites and build focused work habits.
+
+Specifically, this extension:
+- Blocks access to user-specified distracting websites using Chrome's declarativeNetRequest API
+- Provides a built-in Pomodoro timer for structured focus sessions
+- Tracks focus statistics (Focus Score, streaks, session history) locally on the user's device
+- Does NOT collect, transmit, or store any user data on external servers
+
+All processing happens locally in your browser. No data is collected, transmitted, or stored on external servers. Your browsing data and focus statistics never leave your device.
+
+The extension requires 8 permissions to function:
+- storage: Saves your blocklist, settings, and focus statistics locally
+- alarms: Powers the Pomodoro timer and scheduled blocking
+- declarativeNetRequest: Blocks distracting websites via Chrome's built-in API
+- declarativeNetRequestWithHostAccess: Applies blocking rules to websites you specify
+- activeTab: Detects the current website to check against your blocklist
+- scripting: Injects the motivational block page when a site is blocked
+- notifications: Sends alerts when focus sessions end
+- offscreen: Plays ambient focus sounds in the background
+
+These permissions are the minimum necessary for the extension's stated purpose.

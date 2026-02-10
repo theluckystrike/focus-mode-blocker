@@ -1,0 +1,88 @@
+Distractions cost the average knowledge worker $608 per week in lost productivity. Every time you check social media or fall down a news rabbit hole, it takes 23 minutes to fully refocus. That's not a habit problem — it's an environment problem.
+
+Block distractions. Build focus. Track your streak.
+
+Focus Mode - Blocker is a free Chrome extension that combines website blocking, gamification, and a built-in Pomodoro timer to help you take back your attention.
+
+
+WHY FOCUS MODE - BLOCKER?
+
+Most blockers give you a list and a toggle. We give you a system.
+
+  - 10 free sites to block — 3x more than competing extensions. Add your worst distractions from day one without hitting a paywall.
+
+  - Gamification meets strong blocking — Focus Score, daily streaks, and the Nuclear Option. No other blocker combines habit-building mechanics with serious distraction defense.
+
+  - Privacy-first, always — Your data never leaves your device. No accounts. No analytics. No tracking. Works entirely offline.
+
+
+FEATURES
+
+  Smart Website Blocking — Block distracting sites with one click. 10 sites free, plus pre-built lists for social media and news so you can get started in seconds.
+
+  Focus Score (0-100) — A unique productivity metric that measures how focused you actually are. Watch your score climb as you build better habits.
+
+  Pomodoro Timer — Built-in 25/5 timer keeps you in the zone with structured focus sessions. Start a session and let the timer do the rest.
+
+  Streak Tracking — Build daily focus streaks and watch your consistency grow. Don't break the chain.
+
+  Nuclear Option — Lock yourself out of distractions for up to 1 hour (24 hours with Pro). No undo. No workarounds. When you need serious focus, this is it.
+
+  Motivational Block Page — Every blocked page shows your current stats, streaks, and an encouraging quote to keep you on track instead of showing a dead end.
+
+  Ambient Sounds — 3 free focus sounds (rain, cafe, white noise) to help you enter and stay in flow state.
+
+  Schedule Blocking — Set automatic focus schedules for work hours. Your blocklist activates on its own so you never forget to turn it on.
+
+
+PERFECT FOR
+
+  Knowledge workers who lose hours to social media
+  Students who need distraction-free study sessions
+  Freelancers who want to maximize billable hours
+  Anyone with ADHD who needs external structure to stay on task
+
+
+HOW IT WORKS
+
+  1. Add sites to your blocklist (or use a pre-built list)
+  2. Start a focus session
+  3. Watch your Focus Score climb
+
+
+KEYBOARD SHORTCUTS
+
+  Alt+Shift+F — Toggle Focus Mode on/off
+  Alt+Shift+Q — Quick Focus (25-minute session)
+
+
+PRIVACY & TRUST
+
+  No data collection — ever
+  No tracking or analytics
+  Works 100% offline
+  Open source: github.com/theluckystrike/focus-mode-blocker
+
+We believe productivity tools should respect your privacy. Focus Mode - Blocker stores everything locally on your device using Chrome's built-in storage. There are no servers, no accounts, and no reason to trust us with your data — because we never ask for it.
+
+
+PERMISSIONS EXPLAINED
+
+We request only what the extension needs to function:
+
+  storage — Saves your settings, blocklist, and stats locally on your device
+  alarms — Powers the Pomodoro timer and scheduled focus sessions
+  declarativeNetRequest — Blocks distracting websites at the network level
+  activeTab — Detects the current site so you can block it with one click
+  scripting — Shows the motivational block page when a site is blocked
+  notifications — Alerts you when focus sessions end
+  offscreen — Plays ambient focus sounds in the background
+
+
+BUILT BY ZOVO
+
+Focus Mode - Blocker is built and maintained by Zovo.
+
+Website: https://zovo.one/tools/focus-mode-blocker
+Support: https://zovo.one/support
+Privacy Policy: https://zovo.one/privacy/focus-mode-blocker

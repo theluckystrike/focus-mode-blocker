@@ -1,0 +1,37 @@
+This extension does not use remote code.
+
+All JavaScript code is bundled within the extension package and reviewed during
+Chrome Web Store submission. The extension does not:
+
+- Load external scripts via <script> tags, import(), or fetch()
+- Use eval(), new Function(), or any form of dynamic code execution
+- Fetch code from external servers at runtime
+- Execute any remotely-hosted JavaScript, WebAssembly, or other executable code
+- Use innerHTML or DOM manipulation to inject executable code from external sources
+- Load external stylesheets that could contain executable content
+
+The Content Security Policy enforces:
+  script-src 'self'; object-src 'none';
+
+This CSP ensures that only scripts included in the extension package can execute.
+No inline scripts, no remote scripts, and no plugin-based code execution is
+permitted.
+
+All content scripts (detector.js, blocker.js, tracker.js) are:
+- Bundled within the extension .crx package
+- Listed explicitly in the manifest.json
+- Reviewed as part of the Chrome Web Store submission process
+- Available for public audit in the source repository
+
+The service worker (background.js) is:
+- Bundled within the extension package
+- Registered in the manifest.json
+- Contains no dynamic code loading or execution
+
+The popup and options pages:
+- Use only locally-bundled HTML, CSS, and JavaScript
+- Do not load any external resources (fonts, scripts, stylesheets, images)
+- All assets are included in the extension package
+
+The complete source code is publicly available and can be audited at:
+https://github.com/theluckystrike/focus-mode-blocker

@@ -1,0 +1,7 @@
+Extension Name: Focus Mode - Blocker
+Short Name: Focus Mode
+Category: Productivity
+Language: English
+Homepage URL: https://zovo.one/tools/focus-mode-blocker
+Support URL: https://zovo.one/support
+Privacy Policy URL: https://zovo.one/privacy/focus-mode-blocker

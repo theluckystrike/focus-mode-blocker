@@ -1,0 +1,405 @@
+================================================================================
+FOCUS MODE - BLOCKER: PERMISSION JUSTIFICATIONS
+================================================================================
+
+This document provides detailed justifications for every permission requested
+by the Focus Mode - Blocker Chrome extension. Each permission is the minimum
+necessary for the extension's stated single purpose: blocking distracting
+websites and helping users build focused work habits.
+
+================================================================================
+REQUIRED PERMISSIONS (8)
+================================================================================
+
+
+--------------------------------------------------------------------------------
+[storage]
+--------------------------------------------------------------------------------
+
+Justification:
+This permission is required to persist user preferences, blocklist data, and
+focus statistics across browser sessions using chrome.storage.local.
+
+Specifically, Focus Mode - Blocker uses this permission to:
+1. Save the user's blocklist of distracting websites so it persists after the
+   browser is closed and reopened
+2. Store focus session history, Focus Score (0-100), streak data, timer state,
+   sound preferences, and scheduling configurations locally on the device
+3. Save user settings and preferences (theme, timer durations, notification
+   preferences) so they do not need to be reconfigured each session
+
+What we DO with this permission:
+- Read and write data exclusively to chrome.storage.local on the user's device
+- Store the following keys: blocklist, settings, focusScore, streakData,
+  sessionHistory, timerState, soundPreferences, schedules, proLicense
+
+What we DO NOT do:
+- Transmit any stored data to external servers
+- Use chrome.storage.sync to send data to Google's sync servers (free tier)
+- Store browsing history, passwords, form data, or any sensitive personal data
+- Share stored data with third parties
+
+User control:
+- Users can clear all extension data at any time via the extension settings
+- Users can remove the extension to delete all stored data instantly
+- Users have full control over which sites are added to the blocklist
+
+
+--------------------------------------------------------------------------------
+[alarms]
+--------------------------------------------------------------------------------
+
+Justification:
+This permission is required to power time-based features including the Pomodoro
+timer, scheduled focus sessions, and periodic streak calculations.
+
+Specifically, Focus Mode - Blocker uses this permission to:
+1. Run the Pomodoro timer in the background service worker, ensuring accurate
+   countdowns even when the popup is closed
+2. Trigger scheduled blocking sessions at user-configured times (e.g., block
+   social media every weekday from 9am to 5pm)
+3. Periodically update focus streak data and recalculate the Focus Score
+
+What we DO with this permission:
+- Create alarms via chrome.alarms.create() for timer countdowns and schedules
+- Listen for alarm events to transition between focus/break periods
+- Clear alarms when the user cancels a session or disables a schedule
+
+What we DO NOT do:
+- Use alarms to track user behavior or browsing activity
+- Send any data when alarms fire
+- Create alarms that run when the extension is disabled
+
+User control:
+- Users start and stop Pomodoro timers manually via the popup
+- Users configure their own schedules and can disable them at any time
+- All timer and schedule settings are fully user-controlled
+
+
+--------------------------------------------------------------------------------
+[declarativeNetRequest]
+--------------------------------------------------------------------------------
+
+Justification:
+This permission is required to block distracting websites using Chrome's
+built-in declarativeNetRequest API, which is the recommended Manifest V3
+approach for content blocking.
+
+Specifically, Focus Mode - Blocker uses this permission to:
+1. Register declarative rules that block navigation to websites on the user's
+   blocklist during active focus sessions
+2. Dynamically add and remove blocking rules as users modify their blocklist
+   or start/stop focus sessions
+
+What we DO with this permission:
+- Add blocking rules via chrome.declarativeNetRequest.updateDynamicRules()
+- Remove blocking rules when focus sessions end or users modify their blocklist
+- Redirect blocked requests to the extension's local motivational block page
+
+What we DO NOT do:
+- Modify, redirect, or inspect network requests for any purpose other than
+  blocking user-specified distracting websites
+- Collect or log any information about blocked or allowed requests
+- Inject ads, tracking pixels, or any third-party content into web traffic
+
+User control:
+- Users specify exactly which websites to block via the blocklist
+- Blocking only activates during user-initiated focus sessions or schedules
+- Users can pause or stop blocking at any time
+
+
+--------------------------------------------------------------------------------
+[declarativeNetRequestWithHostAccess]
+--------------------------------------------------------------------------------
+
+Justification:
+This permission is required in combination with declarativeNetRequest to apply
+blocking rules to the specific websites the user has added to their blocklist.
+
+Specifically, Focus Mode - Blocker uses this permission to:
+1. Apply URL-based blocking rules to any website the user specifies in their
+   blocklist, since users may want to block any domain
+2. Ensure blocking rules function correctly on all potential distraction sites
+   without requiring the user to grant per-site permissions individually
+
+What we DO with this permission:
+- Apply declarativeNetRequest blocking rules to domains in the user's blocklist
+- Match URLs against user-specified patterns to determine if a site should be
+  blocked during a focus session
+
+What we DO NOT do:
+- Access or modify website content through this permission
+- Read any data from the websites being blocked
+- Apply rules to websites not on the user's blocklist
+
+User control:
+- The user's blocklist exclusively determines which sites are affected
+- Users can add or remove sites from the blocklist at any time
+- No sites are blocked by default; the user must explicitly configure each one
+
+
+--------------------------------------------------------------------------------
+[activeTab]
+--------------------------------------------------------------------------------
+
+Justification:
+This permission is required to detect the URL of the currently active tab so
+the extension can check whether the user is visiting a site on their blocklist.
+
+Specifically, Focus Mode - Blocker uses this permission to:
+1. Read the URL of the active tab when the user interacts with the extension
+   to determine if the current site should be blocked
+2. Display contextual information in the popup (e.g., showing whether the
+   current site is on the blocklist)
+
+What we DO with this permission:
+- Read the URL of the active tab to compare against the user's blocklist
+- Show the current site's block status in the extension popup
+
+What we DO NOT do:
+- Read the content of web pages
+- Access tabs other than the currently active tab
+- Record, log, or transmit any URLs or browsing activity
+- Track which websites the user visits over time
+
+User control:
+- The permission only activates when the user interacts with the extension
+- No background URL monitoring occurs through this permission
+- Users can see exactly which sites are on their blocklist
+
+
+--------------------------------------------------------------------------------
+[scripting]
+--------------------------------------------------------------------------------
+
+Justification:
+This permission is required to inject the motivational block page content
+script when a user navigates to a blocked website during a focus session.
+
+Specifically, Focus Mode - Blocker uses this permission to:
+1. Inject the block page overlay (blocker.js) that replaces the content of a
+   blocked website with a motivational message and focus timer
+2. Run the site detection script (detector.js) at document_start to quickly
+   identify and intercept blocked sites before they load
+3. Run the focus tracker script (tracker.js) to update session statistics
+
+What we DO with this permission:
+- Inject bundled content scripts (detector.js, blocker.js, tracker.js) that
+  are included in the extension package and reviewed by Chrome Web Store
+- Display the block page overlay on sites the user has chosen to block
+
+What we DO NOT do:
+- Inject any external or remotely-loaded scripts
+- Read, collect, or exfiltrate page content from any website
+- Modify website content for any purpose other than displaying the block page
+- Use eval() or any form of dynamic code execution
+
+User control:
+- Scripts only activate on sites the user has added to their blocklist
+- The block page is only shown during active focus sessions
+- Users control which sites trigger content script injection
+
+
+--------------------------------------------------------------------------------
+[notifications]
+--------------------------------------------------------------------------------
+
+Justification:
+This permission is required to send browser notifications when focus sessions
+and break periods end, keeping users informed of their Pomodoro timer progress.
+
+Specifically, Focus Mode - Blocker uses this permission to:
+1. Notify the user when a focus session has ended and a break period begins
+2. Notify the user when a break period has ended and it is time to resume focus
+3. Alert users about streak milestones and focus achievements
+
+What we DO with this permission:
+- Display standard Chrome notifications with session status messages
+- Include the user's Focus Score or streak information in notification text
+
+What we DO NOT do:
+- Send promotional, advertising, or marketing notifications
+- Display notifications unrelated to the user's focus sessions
+- Use notifications to track user engagement or collect analytics
+
+User control:
+- Users can enable or disable notifications in the extension settings
+- Users can configure which types of notifications they receive
+- Chrome's built-in notification controls allow muting the extension
+
+
+--------------------------------------------------------------------------------
+[offscreen]
+--------------------------------------------------------------------------------
+
+Justification:
+This permission is required to play ambient focus sounds (e.g., white noise,
+nature sounds) in the background using an offscreen document, since Manifest V3
+service workers cannot directly access audio APIs.
+
+Specifically, Focus Mode - Blocker uses this permission to:
+1. Create an offscreen document that plays ambient sound audio during focus
+   sessions to help users concentrate
+2. Maintain audio playback even when the extension popup is closed, since the
+   service worker cannot play audio directly
+
+What we DO with this permission:
+- Create a single offscreen document with the AUDIO_PLAYBACK reason
+- Play locally-bundled audio files for ambient focus sounds
+- Control playback (play, pause, volume, track selection) via message passing
+
+What we DO NOT do:
+- Use the offscreen document for any purpose other than audio playback
+- Load external audio files or stream from remote servers
+- Use the offscreen document to access DOM APIs for data collection
+
+User control:
+- Users choose whether to enable ambient sounds during focus sessions
+- Users select which sounds to play and control the volume
+- Sound playback stops automatically when focus sessions end
+
+
+================================================================================
+HOST PERMISSIONS
+================================================================================
+
+
+--------------------------------------------------------------------------------
+[host_permissions: <all_urls>]
+--------------------------------------------------------------------------------
+
+Justification:
+This host permission is required because users can add ANY website to their
+blocklist. The extension cannot predict which domains users will want to block,
+so it must have the ability to apply blocking rules to all URLs.
+
+Specifically, Focus Mode - Blocker uses this permission to:
+1. Apply declarativeNetRequest blocking rules to any domain the user adds to
+   their personal blocklist
+2. Run content scripts (detector.js, blocker.js, tracker.js) on blocked sites
+   to display the motivational block page and track session progress
+3. Detect the current site against the user's blocklist regardless of domain
+
+What we DO with this permission:
+- Block navigation to websites the user has explicitly added to their blocklist
+- Display the block page overlay on user-specified blocked sites
+- Check the active tab's URL against the user's blocklist
+
+What we DO NOT do:
+- Access, read, or modify content on websites not on the user's blocklist
+- Collect browsing history or track which websites the user visits
+- Inject content into websites that are not being actively blocked
+- Transmit any URL or page data to external servers
+
+User control:
+- Only sites explicitly added to the blocklist by the user are affected
+- The extension takes no action on sites outside the user's blocklist
+- Users have complete control over their blocklist at all times
+
+
+================================================================================
+OPTIONAL PERMISSIONS (3)
+================================================================================
+
+These permissions are NOT requested at install time. They are only requested
+when the user explicitly enables a feature that requires them.
+
+
+--------------------------------------------------------------------------------
+[identity] (optional)
+--------------------------------------------------------------------------------
+
+Justification:
+This optional permission enables Pro tier account authentication for users who
+choose to upgrade, allowing license verification and encrypted settings sync.
+
+Specifically, Focus Mode - Blocker uses this permission to:
+1. Authenticate the user's Pro license via their Google account
+2. Enable encrypted cross-device sync of settings and blocklist for Pro users
+
+What we DO with this permission:
+- Use chrome.identity.getAuthToken() to verify Pro license status
+- Authenticate for encrypted sync of user preferences across devices (Pro only)
+
+What we DO NOT do:
+- Request this permission unless the user explicitly opts into Pro features
+- Access any Google account data beyond authentication tokens
+- Share identity information with third parties
+
+User control:
+- This permission is only requested when the user opts into Pro features
+- Users can revoke this permission at any time via Chrome settings
+- Free tier users are never prompted for this permission
+
+
+--------------------------------------------------------------------------------
+[idle] (optional)
+--------------------------------------------------------------------------------
+
+Justification:
+This optional permission enables automatic focus session pausing when the user
+steps away from their computer, providing more accurate focus time tracking.
+
+Specifically, Focus Mode - Blocker uses this permission to:
+1. Detect when the user is idle (away from keyboard) to automatically pause
+   the focus timer, preventing inflated focus statistics
+2. Resume the focus timer when the user returns, ensuring accurate session data
+
+What we DO with this permission:
+- Use chrome.idle.queryState() to check if the user is active or idle
+- Pause and resume focus timers based on idle state transitions
+
+What we DO NOT do:
+- Request this permission unless the user enables the auto-pause feature
+- Track or record when the user is idle for any analytics purpose
+- Transmit idle state information to any external server
+
+User control:
+- This permission is only requested when the user enables auto-pause in settings
+- Users can disable auto-pause at any time, which revokes the need for this
+  permission
+- The idle detection threshold is configurable by the user
+
+
+--------------------------------------------------------------------------------
+[tabGroups] (optional)
+--------------------------------------------------------------------------------
+
+Justification:
+This optional permission enables automatic tab organization during focus
+sessions, grouping blocked-site tabs separately to reduce visual distraction.
+
+Specifically, Focus Mode - Blocker uses this permission to:
+1. Automatically group tabs containing blocked sites into a collapsed tab group
+   during focus sessions, reducing visual clutter
+2. Ungroup tabs when focus sessions end, restoring the user's original tab
+   arrangement
+
+What we DO with this permission:
+- Use chrome.tabGroups API to create and manage tab groups during focus sessions
+- Collapse tab groups containing blocked-site tabs to minimize distractions
+
+What we DO NOT do:
+- Request this permission unless the user enables tab organization in settings
+- Permanently modify the user's tab arrangement
+- Access tab content or URLs through this permission beyond what is already
+  available via other granted permissions
+
+User control:
+- This permission is only requested when the user enables tab organization
+- Users can disable this feature at any time
+- Tab groups are automatically restored when focus sessions end
+
+
+================================================================================
+SUMMARY
+================================================================================
+
+Total required permissions: 8
+Total host permissions: 1 (<all_urls>)
+Total optional permissions: 3
+
+Every permission listed above is the minimum necessary for the extension's
+stated single purpose: blocking distracting websites and helping users build
+focused work habits. No permission is used for data collection, advertising,
+analytics, or any purpose unrelated to the core functionality.

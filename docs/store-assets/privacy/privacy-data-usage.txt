@@ -1,0 +1,122 @@
+================================================================================
+FOCUS MODE - BLOCKER: DATA USAGE DECLARATION
+Chrome Web Store Privacy Tab — Data Usage Section
+================================================================================
+
+This document specifies the data usage declarations for the Chrome Web Store
+submission. Focus Mode - Blocker does NOT collect or transmit any user data
+to external servers. All data is stored locally on the user's device via
+chrome.storage.local.
+
+================================================================================
+DATA USAGE CATEGORIES (All 9 Categories: NOT COLLECTED)
+================================================================================
+
+1. Personally identifiable information
+   Collection: NOT COLLECTED
+   The extension does not collect names, addresses, email addresses, age,
+   identification numbers, or any other personally identifiable information.
+
+2. Health information
+   Collection: NOT COLLECTED
+   The extension does not collect any health-related data.
+
+3. Financial and payment information
+   Collection: NOT COLLECTED
+   The extension does not collect credit card numbers, bank account numbers,
+   or any financial data. Pro license verification (if applicable) is handled
+   entirely through Chrome Web Store's payment infrastructure.
+
+4. Authentication information
+   Collection: NOT COLLECTED
+   The extension does not collect passwords, credentials, security questions,
+   or personal identification numbers. The optional identity permission (Pro
+   tier only) uses Chrome's built-in OAuth flow and does not expose or store
+   authentication credentials.
+
+5. Personal communications
+   Collection: NOT COLLECTED
+   The extension does not collect emails, text messages, chat logs, or any
+   personal communications.
+
+6. Location
+   Collection: NOT COLLECTED
+   The extension does not collect or access geographic location data of any
+   kind (fine or coarse).
+
+7. Web history
+   Collection: NOT COLLECTED
+   The extension does not collect, record, or transmit any browsing history.
+   While the extension checks the active tab URL against the user's blocklist,
+   this comparison happens locally in real-time and no URL history is recorded
+   or transmitted. The locally-stored sessionHistory tracks only focus session
+   durations and scores, not URLs visited.
+
+8. User activity
+   Collection: NOT COLLECTED
+   The extension does not collect network monitoring data, clicks, mouse
+   position, scroll data, or keystroke logging. Focus statistics (Focus Score,
+   streaks) are computed locally and never transmitted.
+
+9. Website content
+   Collection: NOT COLLECTED
+   The extension does not collect or read any website content. Content scripts
+   only inject the block page overlay on user-specified blocked sites and do
+   not extract any page content.
+
+
+================================================================================
+LOCAL STORAGE DISCLOSURE
+================================================================================
+
+While no data is collected or transmitted externally, the extension does store
+the following data LOCALLY on the user's device via chrome.storage.local:
+
+  - blocklist: User-specified list of websites to block during focus sessions
+  - settings: User preferences (timer durations, theme, notification settings)
+  - focusScore: Numerical score (0-100) reflecting recent focus consistency
+  - streakData: Current and historical focus streak information
+  - sessionHistory: Record of focus session durations and completion status
+  - timerState: Current Pomodoro timer state for session persistence
+  - soundPreferences: Selected ambient sounds and volume settings
+  - schedules: User-configured automatic blocking schedules
+  - proLicense: Pro tier license status (boolean)
+
+NONE of this locally-stored data is transmitted to external servers, shared
+with third parties, or used for any purpose other than providing the
+extension's core functionality to the user.
+
+
+================================================================================
+CERTIFICATIONS (All 3 Checked)
+================================================================================
+
+[x] I certify that the extension does not sell user data to third parties,
+    outside of the approved use cases as described in the Chrome Web Store
+    Developer Program Policies.
+
+[x] I certify that the extension does not use or transfer user data for
+    purposes that are unrelated to the item's single purpose.
+
+[x] I certify that the extension does not use or transfer user data to
+    determine creditworthiness or for lending purposes.
+
+
+================================================================================
+SUMMARY
+================================================================================
+
+Focus Mode - Blocker is a privacy-first extension. It:
+
+  - Collects ZERO data in all 9 Chrome Web Store data categories
+  - Stores all user data exclusively on the local device
+  - Never transmits browsing data, focus statistics, or personal information
+    to any external server
+  - Does not use analytics, telemetry, or tracking of any kind
+  - Does not contain ads or integrate with advertising networks
+  - Does not sell, share, or transfer any user data to third parties
+
+Users can verify this by:
+  1. Inspecting the source code: https://github.com/theluckystrike/focus-mode-blocker
+  2. Monitoring network traffic (the extension makes zero external requests)
+  3. Reviewing chrome.storage.local contents via Chrome DevTools
