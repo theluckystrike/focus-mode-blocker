@@ -58,10 +58,24 @@
       "description": "Activate Nuclear Mode"
     }
   },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content/detector.js"],
+      "run_at": "document_start",
+      "all_frames": false
+    }
+  ],
   "options_page": "src/options/options.html",
   "web_accessible_resources": [
     {
-      "resources": ["src/blocked/blocked.html", "src/blocked/blocked.css", "src/blocked/blocked.js"],
+      "resources": [
+        "src/blocked/blocked.html",
+        "src/blocked/blocked.css",
+        "src/blocked/blocked.js",
+        "src/data/quotes.json",
+        "src/data/blocklists.json"
+      ],
       "matches": ["<all_urls>"]
     }
   ]

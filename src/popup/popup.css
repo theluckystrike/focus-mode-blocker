@@ -242,23 +242,24 @@ a {
   font-weight: 500;
   border-radius: 0 0 var(--radius-md) var(--radius-md);
   box-shadow: var(--shadow-md);
-  transition: transform var(--transition-smooth);
+  transition: transform var(--transition-smooth), visibility 0s linear 300ms;
   white-space: nowrap;
 }
 
-.toast[aria-live]:not([hidden]) {
-  transform: translateX(-50%) translateY(0);
-}
-
-.toast[hidden] {
+/* When the toast is visible (hidden attr removed), it remains positioned
+   off-screen by default via the base transform. The .toast--visible class
+   slides it into view. This avoids conflicts with the global
+   [hidden] { display:none !important } rule. */
+.toast:not([hidden]) {
   display: block;
   visibility: hidden;
-  transform: translateX(-50%) translateY(-100%);
 }
 
 .toast.toast--visible {
   visibility: visible;
   transform: translateX(-50%) translateY(0);
+  /* When becoming visible, remove the visibility delay so it appears immediately */
+  transition: transform var(--transition-smooth), visibility 0s linear 0s;
 }
 
 /* --------------------------------------------------------------------------
@@ -340,6 +341,33 @@ a {
   background-color: var(--color-pro);
   border-radius: var(--radius-full);
   line-height: 1.2;
+}
+
+.badge--nuclear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #ffffff;
+  background-color: var(--color-error);
+  border-radius: var(--radius-full);
+  line-height: 1.2;
+  animation: nuclear-pulse 2s ease-in-out infinite;
+}
+
+@keyframes nuclear-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .badge--nuclear {
+    animation: none;
+  }
 }
 
 /* --------------------------------------------------------------------------

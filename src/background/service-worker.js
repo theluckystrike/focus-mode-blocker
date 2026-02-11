@@ -53,7 +53,6 @@ async function updateBlockingRules(domains) {
     return;
   }
 
-  const redirectUrl = chrome.runtime.getURL(BLOCK_PAGE_PATH);
   const rules = [];
   let ruleId = 1;
 
@@ -66,11 +65,11 @@ async function updateBlockingRules(domains) {
       action: {
         type: 'redirect',
         redirect: {
-          regexSubstitution: `${redirectUrl}?domain=${encodeURIComponent(cleanDomain)}&url=\\0`
+          extensionPath: '/src/blocked/blocked.html?domain=' + encodeURIComponent(cleanDomain)
         }
       },
       condition: {
-        regexFilter: `^https?://([a-z0-9-]+\\.)*${escapeRegex(cleanDomain)}/`,
+        urlFilter: '||' + cleanDomain,
         resourceTypes: ['main_frame']
       }
     });
@@ -90,10 +89,6 @@ async function clearBlockingRules() {
       removeRuleIds: existingIds
     });
   }
-}
-
-function escapeRegex(str) {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 // ---------------------------------------------------------------------------
@@ -152,7 +147,7 @@ async function stopSession() {
   const timerState = await getTimerState();
 
   if (timerState && timerState.status === 'focus') {
-    const elapsed = timerState.duration - timerState.remaining;
+    const elapsed = Math.floor((Date.now() - timerState.startedAt) / 1000);
     const focusMinutes = Math.floor(elapsed / 60);
 
     await recordSession({
@@ -314,7 +309,7 @@ async function updateBadge(mode, minutes) {
       await chrome.action.setBadgeBackgroundColor({ color: BADGE_COLORS.break });
       break;
     case 'nuclear':
-      await chrome.action.setBadgeText({ text: '\uD83D\uDD12' });
+      await chrome.action.setBadgeText({ text: 'NUC' });
       await chrome.action.setBadgeBackgroundColor({ color: BADGE_COLORS.nuclear });
       break;
   }
@@ -461,6 +456,9 @@ async function handleMessage(message, sender) {
       await activateNuclear(message.duration);
       return { success: true };
 
+    case 'CHECK_BLOCKED':
+      return await handleCheckBlocked(message.payload);
+
     case 'GET_BLOCK_INFO':
       return await getBlockInfo(message.domain);
 
@@ -474,6 +472,12 @@ async function handleMessage(message, sender) {
     case 'SKIP_BREAK':
       await startFocusSession(message.duration || DEFAULTS_TIMER.focusDuration);
       return { success: true };
+
+    case 'OVERRIDE_BLOCK':
+      return await handleOverrideBlock(message.domain);
+
+    case 'UPDATE_SCHEDULE':
+      return await handleUpdateSchedule(message.schedule);
 
     default:
       return { error: `Unknown message type: ${message.type}` };
@@ -557,9 +561,40 @@ async function handleTogglePrebuiltList(listId) {
   return { success: true, activePrebuiltLists: updated };
 }
 
+async function handleCheckBlocked(payload) {
+  const domains = await getFullBlocklist();
+  const cleanDomain = payload.domain.replace(/^www\./, '').replace(/\/.*$/, '');
+  const inBlocklist = domains.some(d => {
+    const clean = d.replace(/^www\./, '').replace(/\/.*$/, '');
+    return clean === cleanDomain;
+  });
+
+  if (!inBlocklist) {
+    return { blocked: false };
+  }
+
+  const nuclearActive = await isNuclearActive();
+  if (nuclearActive) {
+    return { blocked: true, reason: 'nuclear' };
+  }
+
+  const scheduleActive = await isScheduleActive();
+  if (scheduleActive) {
+    return { blocked: true, reason: 'schedule' };
+  }
+
+  const timerState = await getTimerState();
+  if (timerState && timerState.status === 'focus') {
+    return { blocked: true, reason: 'blocklist' };
+  }
+
+  return { blocked: false };
+}
+
 async function getBlockInfo(domain) {
   const stats = await getTodayStats();
-  const { streak } = await getStorage('streak');
+  const { streak, settings } = await getStorage(['streak', 'settings']);
+  const timerState = await getTimerState();
 
   let quotes;
   try {
@@ -572,14 +607,88 @@ async function getBlockInfo(domain) {
   const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
   const domainAttempts = stats.sitesBlocked[domain] || 0;
 
+  // Adjust timer remaining based on current time
+  let adjustedTimer = timerState;
+  if (timerState && timerState.startedAt && timerState.status !== 'idle') {
+    const elapsed = Math.floor((Date.now() - timerState.startedAt) / 1000);
+    adjustedTimer = {
+      ...timerState,
+      remaining: Math.max(0, timerState.duration - elapsed)
+    };
+  }
+
   return {
     domain,
     attempts: domainAttempts,
     totalAttempts: stats.totalAttempts,
-    streak: streak.current,
+    streak: streak,
     focusScore: stats.focusScore,
-    quote: randomQuote
+    quote: randomQuote,
+    timerState: adjustedTimer,
+    settings: settings,
+    todayStats: stats
   };
+}
+
+async function handleOverrideBlock(domain) {
+  const nuclearActive = await isNuclearActive();
+  if (nuclearActive) {
+    return { error: 'Cannot override blocks during nuclear mode.' };
+  }
+
+  // Record the override as a distraction and temporarily remove
+  // the blocking rule for this domain so navigation can proceed.
+  await recordDistraction(domain);
+
+  const cleanDomain = domain.replace(/^www\./, '').replace(/\/.*$/, '');
+
+  // Remove only the rule matching this domain
+  const existingRules = await chrome.declarativeNetRequest.getDynamicRules();
+  const idsToRemove = existingRules
+    .filter(r => {
+      const filter = r.condition && r.condition.urlFilter;
+      if (!filter) return false;
+      return filter === '||' + cleanDomain;
+    })
+    .map(r => r.id);
+
+  if (idsToRemove.length > 0) {
+    await chrome.declarativeNetRequest.updateDynamicRules({
+      removeRuleIds: idsToRemove
+    });
+  }
+
+  // Set a 5-minute alarm to re-add the blocking rule
+  await chrome.alarms.create('override-' + cleanDomain, { delayInMinutes: 5 });
+
+  return { success: true };
+}
+
+async function handleUpdateSchedule(schedule) {
+  const { settings } = await getStorage('settings');
+  settings.schedule = schedule;
+  await setStorage({ settings });
+
+  // Immediately check if the schedule should activate or deactivate blocking
+  await checkSchedule();
+
+  return { success: true };
+}
+
+// ---------------------------------------------------------------------------
+// Override Expiry
+// ---------------------------------------------------------------------------
+
+async function onOverrideExpiry(domain) {
+  const timerState = await getTimerState();
+  const scheduleActive = await isScheduleActive();
+  const nuclearActive = await isNuclearActive();
+
+  // Re-add blocking rules if a focus session, schedule, or nuclear mode is still active
+  if (nuclearActive || scheduleActive || (timerState && timerState.status === 'focus')) {
+    const domains = await getFullBlocklist();
+    await updateBlockingRules(domains);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -587,15 +696,18 @@ async function getBlockInfo(domain) {
 // ---------------------------------------------------------------------------
 
 chrome.alarms.onAlarm.addListener(async (alarm) => {
-  switch (alarm.name) {
-    case ALARM_TICK:
+  switch (true) {
+    case alarm.name === ALARM_TICK:
       await onAlarmTick();
       break;
-    case ALARM_SCHEDULE_CHECK:
+    case alarm.name === ALARM_SCHEDULE_CHECK:
       await checkSchedule();
       break;
-    case ALARM_NUCLEAR_END:
+    case alarm.name === ALARM_NUCLEAR_END:
       await onNuclearEnd();
+      break;
+    case alarm.name.startsWith('override-'):
+      await onOverrideExpiry(alarm.name.replace('override-', ''));
       break;
   }
 });

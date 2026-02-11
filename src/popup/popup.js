@@ -10,7 +10,7 @@
 // Constants
 // ---------------------------------------------------------------------------
 
-const FREE_SITE_LIMIT = 10;
+const FREE_SITE_LIMIT = 5;
 const TIMER_POLL_INTERVAL_MS = 1000;
 const SCORE_COLORS = {
   red:    { max: 40, color: '#EF4444' },
@@ -198,6 +198,9 @@ let toastTimeout = null;
 
 /**
  * Show a brief toast notification at the top of the popup.
+ * Uses a class-based approach instead of the hidden attribute so that CSS
+ * transitions work correctly (the global [hidden] { display:none !important }
+ * rule would prevent the slide-in animation if we relied on the hidden attr).
  * @param {Record<string, HTMLElement>} els
  * @param {string} text
  * @param {number} durationMs
@@ -206,9 +209,25 @@ function showToast(els, text, durationMs = 2500) {
   if (!els.toast || !els.toastMessage) return;
   clearTimeout(toastTimeout);
   els.toastMessage.textContent = text;
-  els.toast.hidden = false;
+  els.toast.removeAttribute('hidden');
+  // Force a reflow so the browser registers the non-hidden state before
+  // adding the visible class, enabling the CSS transition.
+  void els.toast.offsetWidth;
+  els.toast.classList.add('toast--visible');
   toastTimeout = setTimeout(() => {
-    els.toast.hidden = true;
+    els.toast.classList.remove('toast--visible');
+    // After the slide-out transition completes, re-hide for assistive tech
+    const onEnd = () => {
+      els.toast.setAttribute('hidden', '');
+      els.toast.removeEventListener('transitionend', onEnd);
+    };
+    els.toast.addEventListener('transitionend', onEnd);
+    // Fallback: if transitionend never fires (e.g. reduced motion), hide after 400ms
+    setTimeout(() => {
+      if (!els.toast.hasAttribute('hidden')) {
+        els.toast.setAttribute('hidden', '');
+      }
+    }, 400);
   }, durationMs);
 }
 
@@ -424,6 +443,19 @@ function renderBlocklistTab(els, state) {
   els.siteCountTotal.textContent = isPro ? 'unlimited' : String(FREE_SITE_LIMIT);
   const fillPct = isPro ? 0 : Math.min(100, (blocklist.length / FREE_SITE_LIMIT) * 100);
   els.siteCountFill.style.width = `${fillPct}%`;
+
+  // Apply warning/full classes to the site-count container for color changes
+  const siteCountEl = els.siteCountUsed.closest('.site-count');
+  if (siteCountEl) {
+    siteCountEl.classList.remove('site-count--warning', 'site-count--full');
+    if (!isPro) {
+      if (blocklist.length >= FREE_SITE_LIMIT) {
+        siteCountEl.classList.add('site-count--full');
+      } else if (blocklist.length >= FREE_SITE_LIMIT * 0.7) {
+        siteCountEl.classList.add('site-count--warning');
+      }
+    }
+  }
 
   // Manual sites list
   els.manualSitesList.innerHTML = '';
@@ -696,6 +728,29 @@ function determineAndRenderHomeState(els, state) {
 }
 
 // ---------------------------------------------------------------------------
+// Nuclear Mode Indicator
+// ---------------------------------------------------------------------------
+
+function showNuclearIndicator(els, state) {
+  // Add nuclear badge next to pro badge in header
+  const headerLeft = document.querySelector('.header__left');
+  if (headerLeft && !document.getElementById('nuclear-badge')) {
+    const badge = document.createElement('span');
+    badge.id = 'nuclear-badge';
+    badge.className = 'badge badge--nuclear';
+    badge.textContent = 'NUCLEAR';
+    badge.setAttribute('aria-label', 'Nuclear mode is active');
+    headerLeft.appendChild(badge);
+  }
+
+  // Disable stop button during nuclear mode
+  if (els.btnStopSession) {
+    els.btnStopSession.disabled = true;
+    els.btnStopSession.title = 'Cannot stop during Nuclear Mode';
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Event Binding
 // ---------------------------------------------------------------------------
 
@@ -761,6 +816,10 @@ function bindEvents(els, state) {
 
   // --- Stop Session button ---
   els.btnStopSession.addEventListener('click', async () => {
+    if (state.nuclearActive) {
+      showToast(els, 'Cannot stop during Nuclear Mode');
+      return;
+    }
     els.btnStopSession.disabled = true;
     const response = await sendMessage({ type: 'STOP_SESSION' });
 
@@ -930,6 +989,11 @@ async function init() {
 
   // Render all tab contents
   determineAndRenderHomeState(els, state);
+
+  // Show nuclear mode indicator
+  if (state.nuclearActive) {
+    showNuclearIndicator(els, state);
+  }
   renderBlocklistTab(els, state);
   renderStatsTab(els, state);
 

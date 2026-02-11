@@ -46,11 +46,9 @@ async function init() {
     attemptMessage.hidden = false;
   }
 
-  // Fetch block info and record distraction in parallel
-  const [blockInfo] = await Promise.all([
-    sendMessage({ type: 'GET_BLOCK_INFO', domain }),
-    sendMessage({ type: 'RECORD_DISTRACTION', domain })
-  ]);
+  // Record the distraction first, then fetch block info so stats are fresh
+  await sendMessage({ type: 'RECORD_DISTRACTION', domain });
+  const blockInfo = await sendMessage({ type: 'GET_BLOCK_INFO', domain });
 
   if (blockInfo) {
     populateStats(blockInfo);
@@ -58,11 +56,13 @@ async function init() {
     populateOverride(blockInfo.settings);
     populateQuote(blockInfo.quote);
 
-    // If the RECORD_DISTRACTION updated the attempt count, use fresh data
-    if (blockInfo.todayStats?.sitesBlocked?.[domain]) {
-      const domainAttempts = blockInfo.todayStats.sitesBlocked[domain];
-      attemptCountEl.textContent = `#${domainAttempts}`;
-      attemptMessage.hidden = false;
+    // Nuclear mode visual indicator
+    if (blockInfo.settings?.nuclearMode?.active && Date.now() < blockInfo.settings.nuclearMode.endsAt) {
+      const banner = document.createElement('div');
+      banner.className = 'nuclear-banner';
+      banner.textContent = 'NUCLEAR MODE ACTIVE \u2014 Cannot bypass';
+      banner.style.cssText = 'background:#ef4444;color:white;text-align:center;padding:8px;font-weight:700;font-size:12px;letter-spacing:0.05em;';
+      document.body.prepend(banner);
     }
   } else {
     // Fallback: load quote locally if service worker isn't ready
@@ -78,8 +78,11 @@ async function init() {
 function populateStats(info) {
   const { streak, todayStats } = info;
 
-  // Streak
-  if (streak) {
+  // Streak — streak is a plain number from the service worker response
+  if (typeof streak === 'number') {
+    streakCountEl.textContent = streak;
+  } else if (streak && typeof streak === 'object') {
+    // Defensive fallback in case streak is still an object with .current
     streakCountEl.textContent = streak.current || 0;
   }
 
@@ -195,11 +198,18 @@ function setupActions() {
 }
 
 function handleReturn() {
-  // Try to go back; if there's no history, open new tab page
+  // Try to go back; if there's no history, open a new tab page.
+  // Note: chrome:// URLs cannot be navigated to from extension pages via
+  // window.location, so we use the chrome.tabs API as a fallback.
   if (window.history.length > 1) {
     window.history.back();
   } else {
-    window.location.href = 'chrome://newtab';
+    try {
+      chrome.tabs.update({ url: 'chrome://newtab' });
+    } catch (e) {
+      // Last resort: close the tab
+      window.close();
+    }
   }
 }
 
