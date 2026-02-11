@@ -64,12 +64,32 @@ export async function getStorage(keys) {
   return chrome.storage.local.get(defaults);
 }
 
+// chrome.storage.local quota is 10 MB for extensions.
+// We use a conservative per-call limit to prevent any single write from
+// consuming an excessive share of that quota.
+const MAX_STORAGE_WRITE_BYTES = 5 * 1024 * 1024; // 5 MB
+
 /**
- * Set values in storage.
+ * Set values in storage with a size safeguard.
+ * Rejects writes that would exceed the per-call size limit to prevent
+ * accidentally filling up the storage quota.
  * @param {object} data
  * @returns {Promise<void>}
  */
 export async function setStorage(data) {
+  // Estimate the serialized size of the data being written
+  let serialized;
+  try {
+    serialized = JSON.stringify(data);
+  } catch (e) {
+    throw new Error('Storage write failed: data is not serializable.');
+  }
+
+  if (serialized.length > MAX_STORAGE_WRITE_BYTES) {
+    console.error('[Storage] Write rejected: data size', serialized.length, 'bytes exceeds limit of', MAX_STORAGE_WRITE_BYTES, 'bytes.');
+    throw new Error('Storage write rejected: data exceeds maximum allowed size.');
+  }
+
   return chrome.storage.local.set(data);
 }
 

@@ -64,6 +64,11 @@
 
       <!-- IDLE STATE -->
       <div id="state-idle" class="state">
+        <!-- Onboarding Welcome (shown for first-time users) -->
+        <div id="onboarding-welcome" class="onboarding-welcome" hidden>
+          <p class="onboarding-welcome__text">Welcome! Add sites to block, then start your first focus session.</p>
+        </div>
+
         <!-- Quick Focus Button -->
         <button id="btn-quick-focus" class="btn btn--primary btn--focus" aria-label="Start a quick focus session">
           <svg class="btn__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -248,7 +253,7 @@
           </li>
           -->
         </ul>
-        <p id="empty-blocklist-msg" class="empty-state" hidden>No sites blocked yet. Add one above.</p>
+        <p id="empty-blocklist-msg" class="empty-state" hidden>No sites blocked yet. Add distracting websites above to block them during focus sessions.</p>
       </div>
 
       <!-- Pre-built Lists -->
@@ -333,6 +338,7 @@
           </div>
         </div>
         <h2 class="stats-hero__title">Focus Score</h2>
+        <p id="stats-empty-msg" class="stats-empty-msg" hidden>Start your first session today!</p>
       </div>
 
       <!-- Today's Focus Time -->

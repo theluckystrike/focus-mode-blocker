@@ -34,6 +34,19 @@ init();
 async function init() {
   currentDomain = domain;
 
+  // Set dynamic page title and favicon
+  if (domain) {
+    document.title = `Blocked - ${domain}`;
+  }
+  const faviconEl = document.getElementById('favicon');
+  if (faviconEl) {
+    try {
+      faviconEl.href = chrome.runtime.getURL('src/assets/icons/icon-32.png');
+    } catch (e) {
+      // Extension context may not be available; ignore
+    }
+  }
+
   // Populate domain name immediately (no async needed)
   if (domain) {
     domainNameEl.textContent = domain;
@@ -61,7 +74,6 @@ async function init() {
       const banner = document.createElement('div');
       banner.className = 'nuclear-banner';
       banner.textContent = 'NUCLEAR MODE ACTIVE \u2014 Cannot bypass';
-      banner.style.cssText = 'background:#ef4444;color:white;text-align:center;padding:8px;font-weight:700;font-size:12px;letter-spacing:0.05em;';
       document.body.prepend(banner);
     }
   } else {
@@ -89,7 +101,12 @@ function populateStats(info) {
   // Focus minutes / time saved
   if (todayStats) {
     const minutes = todayStats.focusMinutes || 0;
-    savedTimeEl.innerHTML = `${minutes}<small>min</small>`;
+    // Use safe DOM APIs instead of innerHTML to prevent XSS
+    savedTimeEl.textContent = '';
+    savedTimeEl.appendChild(document.createTextNode(String(minutes)));
+    const smallEl = document.createElement('small');
+    smallEl.textContent = 'min';
+    savedTimeEl.appendChild(smallEl);
 
     // Total blocks today
     blockedCountEl.textContent = todayStats.totalAttempts || 0;
@@ -220,19 +237,30 @@ function handleOverrideClick() {
   confirmEl.setAttribute('role', 'alertdialog');
   confirmEl.setAttribute('aria-label', 'Override confirmation');
 
-  confirmEl.innerHTML = `
-    <p>Are you sure? This will be recorded and may affect your Focus Score.</p>
-    <div class="override-confirm-actions">
-      <button class="btn-confirm-cancel" type="button">Cancel</button>
-      <button class="btn-confirm-yes" type="button">Continue to site</button>
-    </div>
-  `;
+  // Build confirmation UI with safe DOM APIs instead of innerHTML
+  const confirmMsg = document.createElement('p');
+  confirmMsg.textContent = 'Are you sure? This will be recorded and may affect your Focus Score.';
+
+  const confirmActions = document.createElement('div');
+  confirmActions.className = 'override-confirm-actions';
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.className = 'btn-confirm-cancel';
+  cancelBtn.type = 'button';
+  cancelBtn.textContent = 'Cancel';
+
+  const yesBtn = document.createElement('button');
+  yesBtn.className = 'btn-confirm-yes';
+  yesBtn.type = 'button';
+  yesBtn.textContent = 'Continue to site';
+
+  confirmActions.appendChild(cancelBtn);
+  confirmActions.appendChild(yesBtn);
+  confirmEl.appendChild(confirmMsg);
+  confirmEl.appendChild(confirmActions);
 
   overrideBtn.hidden = true;
   overrideBtn.parentElement.appendChild(confirmEl);
-
-  const cancelBtn = confirmEl.querySelector('.btn-confirm-cancel');
-  const yesBtn = confirmEl.querySelector('.btn-confirm-yes');
 
   cancelBtn.addEventListener('click', () => {
     confirmEl.remove();

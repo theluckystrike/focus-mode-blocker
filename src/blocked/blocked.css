@@ -96,6 +96,57 @@ body {
   gap: 20px;
 }
 
+/* --- Entrance Animations --- */
+@keyframes blocked-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes blocked-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.shield-icon {
+  animation: blocked-scale-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.heading {
+  animation: blocked-fade-in-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+}
+
+.domain-message {
+  animation: blocked-fade-in-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.14s both;
+}
+
+.timer-section {
+  animation: blocked-fade-in-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both;
+}
+
+.stats-row {
+  animation: blocked-fade-in-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.22s both;
+}
+
+.quote-block {
+  animation: blocked-fade-in-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.26s both;
+}
+
+.actions {
+  animation: blocked-fade-in-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.30s both;
+}
+
 /* --- Shield Icon --- */
 .shield-icon {
   display: flex;
@@ -347,7 +398,34 @@ body {
   outline-offset: 2px;
 }
 
+/* Nuclear Mode Banner */
+.nuclear-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #ef4444;
+  color: #ffffff;
+  text-align: center;
+  padding: 8px 16px;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  z-index: 10;
+}
+
 /* Confirmation dialog inline */
+@keyframes override-confirm-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .override-confirm {
   display: flex;
   flex-direction: column;
@@ -360,6 +438,7 @@ body {
   box-shadow: 0 2px 8px var(--color-card-shadow);
   max-width: 380px;
   width: 100%;
+  animation: override-confirm-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .override-confirm p {
@@ -473,6 +552,17 @@ body {
 
 /* --- Reduced Motion --- */
 @media (prefers-reduced-motion: reduce) {
+  .shield-icon,
+  .heading,
+  .domain-message,
+  .timer-section,
+  .stats-row,
+  .quote-block,
+  .actions,
+  .override-confirm {
+    animation: none;
+  }
+
   .stat-card {
     transition: none;
   }

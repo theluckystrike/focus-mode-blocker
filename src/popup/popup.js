@@ -44,6 +44,7 @@ function cacheElements() {
 
     // Home — idle state
     stateIdle:          document.getElementById('state-idle'),
+    onboardingWelcome:  document.getElementById('onboarding-welcome'),
     btnQuickFocus:      document.getElementById('btn-quick-focus'),
     statFocusTime:      document.getElementById('stat-focus-time'),
     statBlocks:         document.getElementById('stat-blocks'),
@@ -88,6 +89,7 @@ function cacheElements() {
     statsBestStreak:    document.getElementById('stats-best-streak'),
     topSitesList:       document.getElementById('top-sites-list'),
     noDistractionsMsg:  document.getElementById('no-distractions-msg'),
+    statsEmptyMsg:      document.getElementById('stats-empty-msg'),
   };
 }
 
@@ -317,6 +319,11 @@ function showHomeState(els, stateName) {
   els.stateIdle.hidden   = stateName !== 'idle';
   els.stateActive.hidden = stateName !== 'active';
   els.statePost.hidden   = stateName !== 'post';
+
+  // Clean up celebration animation when leaving post state
+  if (stateName !== 'post') {
+    els.statePost.classList.remove('state--celebrate');
+  }
 }
 
 /**
@@ -326,6 +333,12 @@ function showHomeState(els, stateName) {
  */
 function renderIdleState(els, state) {
   showHomeState(els, 'idle');
+
+  // Show onboarding welcome for first-time users
+  const isNewUser = !state.onboardingComplete && (state.sessionCount || 0) === 0;
+  if (els.onboardingWelcome) {
+    els.onboardingWelcome.hidden = !isNewUser;
+  }
 
   const stats = state.stats || {};
   const streak = state.streak || {};
@@ -409,6 +422,11 @@ function renderActiveState(els, state) {
 function renderPostState(els, state, completedSession) {
   showHomeState(els, 'post');
 
+  // Trigger celebration animation by removing and re-adding the class
+  els.statePost.classList.remove('state--celebrate');
+  void els.statePost.offsetWidth; // force reflow to restart animation
+  els.statePost.classList.add('state--celebrate');
+
   const stats = state.stats || {};
 
   if (completedSession) {
@@ -458,7 +476,7 @@ function renderBlocklistTab(els, state) {
   }
 
   // Manual sites list
-  els.manualSitesList.innerHTML = '';
+  els.manualSitesList.replaceChildren();
   if (blocklist.length === 0) {
     els.emptyBlocklistMsg.hidden = false;
   } else {
@@ -522,7 +540,26 @@ function createSiteListItem(domain, els, state) {
   const removeBtn = document.createElement('button');
   removeBtn.className = 'site-list__remove icon-btn';
   removeBtn.setAttribute('aria-label', `Remove ${domain} from blocklist`);
-  removeBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+  // Use safe DOM APIs instead of innerHTML for SVG
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgNS, 'svg');
+  svg.setAttribute('width', '16');
+  svg.setAttribute('height', '16');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2');
+  svg.setAttribute('stroke-linecap', 'round');
+  svg.setAttribute('stroke-linejoin', 'round');
+  const line1 = document.createElementNS(svgNS, 'line');
+  line1.setAttribute('x1', '18'); line1.setAttribute('y1', '6');
+  line1.setAttribute('x2', '6'); line1.setAttribute('y2', '18');
+  const line2 = document.createElementNS(svgNS, 'line');
+  line2.setAttribute('x1', '6'); line2.setAttribute('y1', '6');
+  line2.setAttribute('x2', '18'); line2.setAttribute('y2', '18');
+  svg.appendChild(line1);
+  svg.appendChild(line2);
+  removeBtn.appendChild(svg);
 
   removeBtn.addEventListener('click', async () => {
     const updatedList = (state.blocklist || []).filter(d => d !== domain);
@@ -558,6 +595,12 @@ function renderStatsTab(els, state) {
   const streak = state.streak || {};
   const score = stats.focusScore || 0;
 
+  // Show motivational empty state when no sessions completed today
+  const hasActivity = (stats.sessionsCompleted || 0) > 0 || (stats.focusMinutes || 0) > 0;
+  if (els.statsEmptyMsg) {
+    els.statsEmptyMsg.hidden = hasActivity;
+  }
+
   // Focus Score ring (large)
   els.statsScoreNumber.textContent = String(score);
   const color = scoreColor(score);
@@ -590,7 +633,7 @@ function renderTopSites(els, sitesBlocked) {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3);
 
-  els.topSitesList.innerHTML = '';
+  els.topSitesList.replaceChildren();
 
   if (entries.length === 0) {
     els.noDistractionsMsg.hidden = false;
