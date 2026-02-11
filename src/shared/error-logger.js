@@ -15,6 +15,12 @@ const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
  */
 export async function logError(source, error, context) {
   try {
+    // Check if error logging is enabled in privacy preferences
+    const { privacyPreferences } = await chrome.storage.local.get('privacyPreferences');
+    if (privacyPreferences && privacyPreferences.errorLogging === false) {
+      return; // Error logging disabled by user
+    }
+
     const entry = {
       ts: Date.now(),
       src: source,
@@ -33,6 +39,7 @@ export async function logError(source, error, context) {
       ? pruned.slice(pruned.length - MAX_ENTRIES)
       : pruned;
 
+    // DATA: Stores error log entries for debugging. Auto-pruned to 50 entries / 7 days. Not transmitted.
     await chrome.storage.local.set({ errorLog: trimmed });
   } catch (_) {
     // Silently fail - don't let the logger itself cause issues

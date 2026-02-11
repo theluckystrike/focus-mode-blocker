@@ -1,6 +1,58 @@
 /**
  * Focus Mode - Blocker: Background Service Worker
  * Handles site blocking, focus timer, nuclear mode, and message routing.
+ *
+ * ---------------------------------------------------------------------------
+ * DATA DISCLOSURE (Chrome Web Store Compliance)
+ * ---------------------------------------------------------------------------
+ * This extension stores the following data locally via chrome.storage.local:
+ *
+ * - blocklist: Array of user-specified domain strings to block.
+ *   User-initiated. Not transmitted externally.
+ *
+ * - activePrebuiltLists: Array of prebuilt list IDs the user has enabled.
+ *   User-initiated. Not transmitted externally.
+ *
+ * - timerState: Current focus timer status, remaining time, cycle count.
+ *   Automatically managed during sessions. Not transmitted externally.
+ *
+ * - sessionHistory: Array of completed focus session records (date, duration,
+ *   focus minutes, completion status, attempts blocked). Pruned to 7 days
+ *   for free tier or 90 days for Pro. Not transmitted externally.
+ *
+ * - todayStats: Aggregated daily stats (focus minutes, sessions completed,
+ *   total distraction attempts, per-site attempt counts, focus score).
+ *   Automatically managed. Not transmitted externally.
+ *
+ * - streak: Current and last-active-date for daily focus streak tracking.
+ *   Automatically managed. Not transmitted externally.
+ *
+ * - settings: User preferences (theme, sound, volume, notification muting,
+ *   schedule config, nuclear mode state). User-initiated. Not transmitted.
+ *
+ * - isPro: Boolean flag for Pro feature gating. User-set. Not transmitted.
+ *
+ * - onboardingComplete: Boolean for first-run experience. Not transmitted.
+ *
+ * - installDate: ISO date string of initial install. Not transmitted.
+ *
+ * - sessionCount: Total lifetime session count. Not transmitted.
+ *
+ * - lastStreakReminder / lastReengagementNotice: ISO date strings for
+ *   notification deduplication. Not transmitted.
+ *
+ * - errorLog: Last 50 error entries for debugging (timestamp, source,
+ *   message, stack trace snippet). Auto-pruned after 7 days. Not transmitted.
+ *
+ * This extension also uses chrome.storage.session for the ephemeral
+ * focusActive flag (cleared on browser close). Not transmitted.
+ *
+ * NETWORK REQUESTS: This extension makes ZERO network requests. All data
+ * is stored locally and never transmitted to any external server. The only
+ * outbound URL is the uninstall feedback URL set via chrome.runtime
+ * .setUninstallURL(), which opens in the browser (not a background request)
+ * only when the user uninstalls the extension.
+ * ---------------------------------------------------------------------------
  */
 
 import {
@@ -23,6 +75,7 @@ const ALARM_TICK = 'focus-tick';
 const ALARM_SCHEDULE_CHECK = 'schedule-check';
 const ALARM_NUCLEAR_END = 'nuclear-end';
 const ALARM_WEEKLY_SUMMARY = 'weekly-summary';
+const ALARM_WEEKLY_USAGE_RESET = 'weekly-usage-reset';
 
 const DEFAULTS_TIMER = {
   focusDuration: 25,
@@ -99,6 +152,7 @@ async function ensureAlarm(name, options) {
 
 async function setSessionFlag(active) {
   try {
+    // DATA: Stores ephemeral focus-active flag. Auto-cleared on browser close. Not transmitted.
     await chrome.storage.session.set({ focusActive: active });
   } catch (e) {
     // chrome.storage.session requires Chrome 102+; log but don't break
@@ -180,6 +234,8 @@ async function getTimerState() {
 }
 
 async function setTimerState(state) {
+  // DATA: Stores timer status (focus/break/idle), remaining seconds, duration, cycle count.
+  // Automatically managed during sessions. Not transmitted externally.
   await setStorage({ timerState: state });
 }
 
@@ -322,6 +378,10 @@ async function onFocusComplete(timerState) {
     await checkMilestoneCelebration(sessionResult.newSessionCount);
   }
 
+  // Increment weekly usage counter
+  const { weeklyUsageCount } = await getStorage('weeklyUsageCount');
+  await setStorage({ weeklyUsageCount: (weeklyUsageCount || 0) + 1 });
+
   const distractions = stats.totalAttempts;
   const durationMin = Math.floor(timerState.duration / 60);
 
@@ -451,6 +511,8 @@ async function activateNuclear(durationMinutes) {
 
     const { settings } = await getStorage('settings');
     settings.nuclearMode = { active: true, endsAt: endsAt };
+    // DATA: Stores nuclear mode activation state and expiry timestamp.
+    // User-initiated. Not transmitted externally.
     await setStorage({ settings });
 
     const domains = await getFullBlocklist();
@@ -680,6 +742,52 @@ async function handleMessage(message, sender) {
       return { success: true };
     }
 
+    case 'GET_USAGE_STATS': {
+      const { weeklyUsageCount, lastCelebratedMilestone, installDate } = await getStorage([
+        'weeklyUsageCount', 'lastCelebratedMilestone', 'installDate'
+      ]);
+      return {
+        weeklyCount: weeklyUsageCount,
+        lastCelebratedMilestone: lastCelebratedMilestone,
+        installDate: installDate
+      };
+    }
+
+    case 'INCREMENT_USAGE': {
+      const { weeklyUsageCount } = await getStorage('weeklyUsageCount');
+      const newCount = (weeklyUsageCount || 0) + 1;
+      await setStorage({ weeklyUsageCount: newCount });
+      return { weeklyCount: newCount };
+    }
+
+    case 'SET_LAST_CELEBRATED_MILESTONE': {
+      const milestoneVal = Number(message.milestone);
+      if (!Number.isFinite(milestoneVal) || milestoneVal < 0) {
+        return { error: 'Invalid milestone value.' };
+      }
+      await setStorage({ lastCelebratedMilestone: milestoneVal });
+      return { success: true };
+    }
+
+    case 'GET_RATING_STATE': {
+      const { ratingState, weeklyUsageCount: usageForRating, sessionCount: sessionsForRating, installDate: installForRating } = await getStorage([
+        'ratingState', 'weeklyUsageCount', 'sessionCount', 'installDate'
+      ]);
+      return {
+        ratingState: ratingState,
+        sessionCount: sessionsForRating,
+        installDate: installForRating
+      };
+    }
+
+    case 'UPDATE_RATING_STATE': {
+      if (!message.ratingState || typeof message.ratingState !== 'object') {
+        return { error: 'Invalid rating state.' };
+      }
+      await setStorage({ ratingState: message.ratingState });
+      return { success: true };
+    }
+
     default:
       return { error: 'Unknown message type.' };
   }
@@ -754,6 +862,7 @@ async function handleUpdateBlocklist(sites) {
     }
   }
 
+  // DATA: Stores user-specified blocklist of domains. User-initiated. Not transmitted externally.
   await setStorage({ blocklist: sanitized });
 
   const timerState = await getTimerState();
@@ -794,6 +903,7 @@ async function handleTogglePrebuiltList(listId) {
     updated = [...activePrebuiltLists, listId];
   }
 
+  // DATA: Stores which prebuilt blocklists the user has enabled. User-initiated. Not transmitted.
   await setStorage({ activePrebuiltLists: updated });
 
   const timerState = await getTimerState();
@@ -913,6 +1023,7 @@ async function handleOverrideBlock(domain) {
 async function handleUpdateSchedule(schedule) {
   const { settings } = await getStorage('settings');
   settings.schedule = schedule;
+  // DATA: Stores user-configured blocking schedule. User-initiated. Not transmitted externally.
   await setStorage({ settings });
 
   // Immediately check if the schedule should activate or deactivate blocking
@@ -961,6 +1072,7 @@ async function checkChurnPrevention() {
         message: `You have a ${streak.current}-day focus streak. Start a session today to keep it going!`,
         priority: 2
       });
+      // DATA: Stores date of last streak reminder to avoid duplicate notifications. Not transmitted.
       await setStorage({ lastStreakReminder: today });
     }
   }
@@ -978,6 +1090,7 @@ async function checkChurnPrevention() {
         message: 'Your focus streak is waiting! Start a quick session to get back on track.',
         priority: 1
       });
+      // DATA: Stores date of last re-engagement notice to avoid duplicate notifications. Not transmitted.
       await setStorage({ lastReengagementNotice: today });
     }
   }
@@ -1012,6 +1125,19 @@ async function onWeeklySummary() {
 }
 
 // ---------------------------------------------------------------------------
+// Weekly Usage Counter Reset
+// ---------------------------------------------------------------------------
+
+async function onWeeklyUsageReset() {
+  await setStorage({
+    weeklyUsageCount: 0,
+    weeklyUsageLastReset: new Date().toISOString(),
+    lastCelebratedMilestone: 0
+  });
+  console.log('[SW] Weekly usage counter reset');
+}
+
+// ---------------------------------------------------------------------------
 // Alarm Listener
 // ---------------------------------------------------------------------------
 
@@ -1031,6 +1157,9 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
       case alarm.name === ALARM_WEEKLY_SUMMARY:
         await onWeeklySummary();
         break;
+      case alarm.name === ALARM_WEEKLY_USAGE_RESET:
+        await onWeeklyUsageReset();
+        break;
       case alarm.name.startsWith('override-'):
         await onOverrideExpiry(alarm.name.replace('override-', ''));
         break;
@@ -1049,6 +1178,17 @@ chrome.runtime.onInstalled.addListener(async (details) => {
   if (details.reason === 'install') {
     chrome.runtime.setUninstallURL('https://zovo.dev/feedback?ext=focus-blocker&v=1.0.0');
 
+    // Open the welcome/onboarding page on first install
+    try {
+      const welcomeUrl = chrome.runtime.getURL('src/welcome/welcome.html');
+      chrome.tabs.create({ url: welcomeUrl });
+    } catch (err) {
+      console.warn('[SW] Failed to open welcome page:', err);
+    }
+
+    // DATA: Initializes all local storage with default values on first install.
+    // All data is user-preference or session-tracking data stored locally.
+    // Nothing is transmitted externally.
     await setStorage({
       blocklist: [],
       activePrebuiltLists: [],
@@ -1081,11 +1221,14 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     await ensureAlarm(ALARM_SCHEDULE_CHECK, { periodInMinutes: 1 });
     // Weekly summary alarm: fires every 7 days (10080 minutes)
     await ensureAlarm(ALARM_WEEKLY_SUMMARY, { delayInMinutes: 10080, periodInMinutes: 10080 });
+    // Weekly usage counter reset: fires every 7 days
+    await ensureAlarm(ALARM_WEEKLY_USAGE_RESET, { delayInMinutes: 10080, periodInMinutes: 10080 });
   }
 
   if (details.reason === 'update') {
     await ensureAlarm(ALARM_SCHEDULE_CHECK, { periodInMinutes: 1 });
     await ensureAlarm(ALARM_WEEKLY_SUMMARY, { delayInMinutes: 10080, periodInMinutes: 10080 });
+    await ensureAlarm(ALARM_WEEKLY_USAGE_RESET, { delayInMinutes: 10080, periodInMinutes: 10080 });
     await restoreState();
   }
 });
@@ -1093,6 +1236,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 chrome.runtime.onStartup.addListener(async () => {
   await ensureAlarm(ALARM_SCHEDULE_CHECK, { periodInMinutes: 1 });
   await ensureAlarm(ALARM_WEEKLY_SUMMARY, { delayInMinutes: 10080, periodInMinutes: 10080 });
+  await ensureAlarm(ALARM_WEEKLY_USAGE_RESET, { delayInMinutes: 10080, periodInMinutes: 10080 });
   await restoreState();
 });
 

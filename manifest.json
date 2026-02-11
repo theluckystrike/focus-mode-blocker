@@ -77,7 +77,12 @@
         "src/blocked/blocked.css",
         "src/blocked/blocked.js",
         "src/data/quotes.json",
-        "src/data/blocklists.json"
+        "src/data/blocklists.json",
+        "src/legal/privacy-policy.html",
+        "src/legal/legal-styles.css",
+        "src/welcome/welcome.html",
+        "src/welcome/welcome.css",
+        "src/welcome/welcome.js"
       ],
       "matches": ["<all_urls>"]
     }

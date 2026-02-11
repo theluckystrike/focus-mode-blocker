@@ -56,6 +56,28 @@
     </button>
   </nav>
 
+  <!-- ========== USAGE COUNTER ========== -->
+  <div class="usage-counter" id="usage-counter">
+    <div class="usage-counter-row">
+      <span class="usage-counter-label">Sessions this week</span>
+      <span class="usage-counter-value" id="usage-count">0</span>
+    </div>
+    <div class="usage-counter-bar">
+      <div class="usage-counter-fill" id="usage-bar-fill" style="width: 0%;"></div>
+    </div>
+    <div class="usage-counter-sub" id="usage-sub-text">Keep going!</div>
+  </div>
+
+  <!-- ========== MILESTONE TOAST ========== -->
+  <div class="milestone-toast" id="milestone-toast" hidden>
+    <div class="milestone-icon" id="milestone-icon"></div>
+    <div class="milestone-text">
+      <strong id="milestone-title">Milestone!</strong>
+      <span id="milestone-message"></span>
+    </div>
+    <button class="milestone-dismiss" id="milestone-dismiss" aria-label="Dismiss milestone">&times;</button>
+  </div>
+
   <!-- ========== MAIN CONTENT ========== -->
   <main class="content" role="main">
 
@@ -64,6 +86,19 @@
 
       <!-- IDLE STATE -->
       <div id="state-idle" class="state">
+        <!-- Rating Prompt Card (shown conditionally by JS) -->
+        <div id="rating-card" class="rating-card" hidden>
+          <div class="rating-card__header">
+            <span class="rating-card__stars" aria-hidden="true"></span>
+            <span class="rating-card__title">Enjoying Focus Mode?</span>
+          </div>
+          <p class="rating-card__body">Your review helps others discover Focus Mode and helps us improve.</p>
+          <div class="rating-card__actions">
+            <button id="btn-rate-store" class="btn btn--sm rating-card__btn-primary" type="button">Rate on Chrome Store</button>
+            <button id="btn-rate-dismiss" class="btn btn--sm rating-card__btn-secondary" type="button">Not now</button>
+          </div>
+        </div>
+
         <!-- Onboarding Welcome (shown for first-time users) -->
         <div id="onboarding-welcome" class="onboarding-welcome" hidden>
           <p class="onboarding-welcome__text" data-i18n="onboardingWelcome">Welcome! Add sites to block, then start your first focus session.</p>
@@ -135,6 +170,24 @@
             </div>
             <span class="streak__label" data-i18n="labelDayStreak">Day streak</span>
           </div>
+        </div>
+
+        <!-- Tip of the Day -->
+        <div id="tip-of-the-day" class="tip-of-the-day" hidden>
+          <div class="tip-of-the-day__content">
+            <svg class="tip-of-the-day__icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="16" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+            <p id="tip-text" class="tip-of-the-day__text"></p>
+          </div>
+          <button id="tip-dismiss" class="tip-of-the-day__dismiss" type="button" aria-label="Dismiss tip">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
         </div>
       </div>
 
@@ -282,7 +335,7 @@
           </li>
           <li class="preset-list__item preset-list__item--pro">
             <div class="preset-list__info">
-              <span class="preset-list__name">Entertainment</span>
+              <span class="preset-list__name">Entertainment <span class="popular-badge">Most popular</span></span>
               <span class="preset-list__count">17 sites</span>
             </div>
             <div class="pro-tag">
@@ -410,6 +463,18 @@
         </div>
       </div>
 
+      <!-- Share Your Progress -->
+      <div class="card share-progress-card">
+        <button id="btn-share-progress" class="btn-share-progress" type="button" aria-label="Share your focus progress">
+          <svg class="share-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/>
+            <polyline points="16 6 12 2 8 6"/>
+            <line x1="12" y1="2" x2="12" y2="15"/>
+          </svg>
+          <span>Share Your Progress</span>
+        </button>
+      </div>
+
       <!-- Weekly Report (Pro) -->
       <div class="card weekly-report weekly-report--locked" aria-label="Weekly report (Pro feature)">
         <div class="weekly-report__blur">
@@ -438,6 +503,14 @@
 
   <!-- ========== FOOTER ========== -->
   <footer class="footer" role="contentinfo">
+    <div class="social-proof-footer" id="social-proof-footer">
+      <span class="social-proof-users">
+        <svg class="social-proof-icon" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+          <path d="M6 6a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM1.5 11a4.5 4.5 0 019 0" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+        Join <strong>1,000+</strong> focused users
+      </span>
+    </div>
     <a href="https://zovo.app" class="footer__link" target="_blank" rel="noopener noreferrer" aria-label="Zovo - visit website">
       Zovo
     </a>

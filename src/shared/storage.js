@@ -49,7 +49,23 @@ const DEFAULTS = {
 
   // Churn prevention tracking
   lastStreakReminder: null,    // ISO date string of last streak protection notification
-  lastReengagementNotice: null // ISO date string of last re-engagement notification
+  lastReengagementNotice: null, // ISO date string of last re-engagement notification
+
+  // Usage counter (weekly sessions)
+  weeklyUsageCount: 0,
+  weeklyUsageLastReset: null,       // ISO date string of last weekly reset
+  lastCelebratedMilestone: 0,       // Highest milestone count celebrated
+
+  // Rating prompt state
+  ratingState: {
+    prompted: false,
+    dismissed: false,
+    lastPromptDate: null,            // ISO date string
+    promptCount: 0
+  },
+
+  // Feedback submissions
+  feedbackSubmissions: []
 };
 
 /**
@@ -98,6 +114,20 @@ export async function setStorage(data) {
 }
 
 /**
+ * Check if usage statistics collection is enabled.
+ * @returns {Promise<boolean>}
+ */
+async function isUsageStatsEnabled() {
+  try {
+    const { privacyPreferences } = await chrome.storage.local.get('privacyPreferences');
+    // Default to true if not set (backwards compatible)
+    return !privacyPreferences || privacyPreferences.usageStats !== false;
+  } catch (_) {
+    return true;
+  }
+}
+
+/**
  * Get today's stats, creating fresh stats if the date has changed.
  * @returns {Promise<object>}
  */
@@ -110,6 +140,7 @@ export async function getTodayStats() {
       ...DEFAULTS.todayStats,
       date: today
     };
+    // DATA: Resets daily stats to defaults when the date changes. Automatic. Not transmitted.
     await setStorage({ todayStats: fresh });
     return fresh;
   }
@@ -123,9 +154,15 @@ export async function getTodayStats() {
  * @returns {Promise<object>} Updated stats
  */
 export async function recordDistraction(domain) {
+  // Respect the user's usage statistics privacy preference
+  if (!(await isUsageStatsEnabled())) {
+    return await getTodayStats(); // Return current stats without modifying
+  }
+
   const stats = await getTodayStats();
   stats.totalAttempts += 1;
   stats.sitesBlocked[domain] = (stats.sitesBlocked[domain] || 0) + 1;
+  // DATA: Updates distraction count for blocked domain. Automatic during blocking. Not transmitted.
   await setStorage({ todayStats: stats });
   return stats;
 }
@@ -135,8 +172,21 @@ export async function recordDistraction(domain) {
  * @param {object} session - { duration, focusMinutes, completed }
  */
 export async function recordSession(session) {
+  // Respect the user's usage statistics privacy preference
+  // Session count is still incremented (needed for core functionality) but
+  // detailed stats, history, and scores are skipped when disabled.
+  const statsEnabled = await isUsageStatsEnabled();
+
   const stats = await getTodayStats();
   const { sessionHistory, sessionCount, streak } = await getStorage(['sessionHistory', 'sessionCount', 'streak']);
+
+  const newSessionCount = sessionCount + 1;
+
+  // If usage stats are disabled, only increment the session count (needed for core features)
+  if (!statsEnabled) {
+    await setStorage({ sessionCount: newSessionCount });
+    return { stats, streak, focusScore: stats.focusScore, newSessionCount };
+  }
 
   if (session.completed) {
     stats.sessionsCompleted += 1;
@@ -178,8 +228,8 @@ export async function recordSession(session) {
   const focusScore = calculateFocusScore(stats, updatedStreak);
   stats.focusScore = focusScore;
 
-  const newSessionCount = sessionCount + 1;
-
+  // DATA: Updates daily stats, session history, session count, and streak.
+  // Automatic after session completion. Not transmitted externally.
   await setStorage({
     todayStats: stats,
     sessionHistory: prunedHistory,

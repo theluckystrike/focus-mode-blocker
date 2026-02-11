@@ -13,6 +13,27 @@
 const DEFAULT_FREE_SITE_LIMIT = 10;
 const DEFAULT_FREE_PREBUILT_LIMIT = 2;
 const TIMER_POLL_INTERVAL_MS = 1000;
+
+// ---------------------------------------------------------------------------
+// Focus Tips (Tip-of-the-Day)
+// ---------------------------------------------------------------------------
+
+const FOCUS_TIPS = [
+  'Try the Pomodoro technique: 25 min focus, 5 min break.',
+  'Block social media during your peak productivity hours.',
+  'Start your day with the hardest task first.',
+  'Set a specific goal before each focus session.',
+  'Take real breaks: step away from the screen, stretch, hydrate.',
+  'Close unnecessary tabs before starting a session.',
+  'Use your streak to build a daily focus habit.',
+  'Put your phone in another room during focus time.',
+  'Schedule your most important work for your highest-energy hours.',
+  'Batch similar tasks together for deeper focus.',
+  'Review your distraction stats weekly to spot patterns.',
+  'A 5-minute focus session is better than no session at all.',
+  'Tell a colleague when you are in focus mode to avoid interruptions.',
+];
+
 const SCORE_COLORS = {
   red:    { max: 40, color: '#EF4444' },
   yellow: { max: 60, color: '#F59E0B' },
@@ -80,6 +101,32 @@ function cacheElements() {
     emptyBlocklistMsg:  document.getElementById('empty-blocklist-msg'),
     toggleSocialMedia:  document.getElementById('toggle-social-media'),
     toggleNews:         document.getElementById('toggle-news'),
+
+    // Tip of the Day
+    tipOfTheDay:        document.getElementById('tip-of-the-day'),
+    tipText:            document.getElementById('tip-text'),
+    tipDismiss:         document.getElementById('tip-dismiss'),
+
+    // Share Progress
+    btnShareProgress:   document.getElementById('btn-share-progress'),
+
+    // Usage Counter
+    usageCounter:       document.getElementById('usage-counter'),
+    usageCount:         document.getElementById('usage-count'),
+    usageBarFill:       document.getElementById('usage-bar-fill'),
+    usageSubText:       document.getElementById('usage-sub-text'),
+
+    // Milestone Toast
+    milestoneToast:     document.getElementById('milestone-toast'),
+    milestoneIcon:      document.getElementById('milestone-icon'),
+    milestoneTitle:     document.getElementById('milestone-title'),
+    milestoneMessage:   document.getElementById('milestone-message'),
+    milestoneDismiss:   document.getElementById('milestone-dismiss'),
+
+    // Rating Card
+    ratingCard:         document.getElementById('rating-card'),
+    btnRateStore:       document.getElementById('btn-rate-store'),
+    btnRateDismiss:     document.getElementById('btn-rate-dismiss'),
 
     // Stats
     statsScoreRing:     document.getElementById('stats-score-ring'),
@@ -673,6 +720,330 @@ function renderTopSites(els, sitesBlocked) {
 }
 
 // ---------------------------------------------------------------------------
+// Tip of the Day
+// ---------------------------------------------------------------------------
+
+/**
+ * Show a daily focus tip based on a date hash. The tip changes once per day.
+ * Dismissing hides it for the rest of the day.
+ * @param {Record<string, HTMLElement>} els
+ */
+function initTipOfTheDay(els) {
+  if (!els.tipOfTheDay || !els.tipText) return;
+
+  const today = new Date().toISOString().split('T')[0];
+
+  // Check if user dismissed the tip today
+  try {
+    if (sessionStorage.getItem('focusmode_tip_dismissed') === today) return;
+  } catch {
+    // sessionStorage may not be available
+  }
+
+  // Pick a tip based on the date (deterministic per day)
+  const dateHash = today.split('-').reduce((sum, part) => sum + parseInt(part, 10), 0);
+  const tipIndex = dateHash % FOCUS_TIPS.length;
+  els.tipText.textContent = FOCUS_TIPS[tipIndex];
+  els.tipOfTheDay.hidden = false;
+
+  if (els.tipDismiss) {
+    els.tipDismiss.addEventListener('click', () => {
+      els.tipOfTheDay.hidden = true;
+      try {
+        sessionStorage.setItem('focusmode_tip_dismissed', today);
+      } catch {
+        // ignore
+      }
+    });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Share Your Progress
+// ---------------------------------------------------------------------------
+
+/**
+ * Initialize the share progress button on the Stats tab.
+ * Copies a shareable text to the clipboard.
+ * @param {Record<string, HTMLElement>} els
+ * @param {object} state
+ */
+function initShareProgress(els, state) {
+  if (!els.btnShareProgress) return;
+
+  els.btnShareProgress.addEventListener('click', async () => {
+    const stats = state.stats || {};
+    const streak = state.streak || {};
+    const sessions = stats.sessionsCompleted || 0;
+    const focusTime = stats.focusMinutes || 0;
+    const currentStreak = streak.current || 0;
+
+    let shareText = 'I\'ve stayed focused';
+    if (sessions > 0) {
+      shareText += ` for ${sessions} session${sessions !== 1 ? 's' : ''}`;
+    }
+    if (focusTime > 0) {
+      const hours = Math.floor(focusTime / 60);
+      const mins = focusTime % 60;
+      let timeStr = '';
+      if (hours > 0 && mins > 0) timeStr = `${hours}h ${mins}m`;
+      else if (hours > 0) timeStr = `${hours}h`;
+      else timeStr = `${mins}m`;
+      shareText += ` (${timeStr} of focus time)`;
+    }
+    if (currentStreak > 1) {
+      shareText += ` with a ${currentStreak}-day streak`;
+    }
+    shareText += ' with Focus Mode! \uD83C\uDFAF';
+
+    try {
+      await navigator.clipboard.writeText(shareText);
+      showToast(els, 'Copied!');
+    } catch (err) {
+      showToast(els, 'Could not copy to clipboard');
+    }
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Usage Counter
+// ---------------------------------------------------------------------------
+
+/** Milestone thresholds for weekly sessions */
+const USAGE_MILESTONES = [
+  { count: 5,  title: 'Getting started!', message: '5 sessions this week -- nice!', icon: '\u2605' },
+  { count: 10, title: 'On a roll!',       message: '10 sessions this week -- keep it up!', icon: '\uD83D\uDD25' },
+  { count: 25, title: 'Power user!',      message: '25 sessions this week -- you are crushing it!', icon: '\uD83C\uDFC6' },
+  { count: 50, title: 'Incredible!',      message: '50 sessions this week -- you are a focus champion!', icon: '\u26A1' }
+];
+
+/**
+ * Animate a number counting up in an element.
+ * @param {HTMLElement} el
+ * @param {number} from
+ * @param {number} to
+ * @param {number} duration — in ms
+ */
+function animateCounter(el, from, to, duration) {
+  if (!el) return;
+  const start = performance.now();
+  const diff = to - from;
+
+  function frame(time) {
+    const elapsed = time - start;
+    const progress = Math.min(elapsed / duration, 1);
+    // Ease out cubic
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = String(Math.round(from + diff * eased));
+
+    if (progress < 1) {
+      requestAnimationFrame(frame);
+    } else {
+      // Bump animation on finish
+      el.classList.add('bump');
+      setTimeout(() => el.classList.remove('bump'), 300);
+    }
+  }
+
+  requestAnimationFrame(frame);
+}
+
+/**
+ * Initialize the usage counter display.
+ * Fetches weekly session count from the service worker and renders it.
+ * @param {Record<string, HTMLElement>} els
+ */
+async function initUsageCounter(els) {
+  try {
+    const status = await sendMessage({ type: 'GET_USAGE_STATS' });
+    if (!status || status.error) return;
+
+    const count = status.weeklyCount || 0;
+
+    // Animate the counter value
+    animateCounter(els.usageCount, 0, count, 600);
+
+    // Update the progress bar toward the next milestone
+    const nextMilestone = USAGE_MILESTONES.find(m => m.count > count);
+    const barTarget = nextMilestone
+      ? Math.min(100, (count / nextMilestone.count) * 100)
+      : 100;
+
+    setTimeout(() => {
+      if (els.usageBarFill) els.usageBarFill.style.width = barTarget + '%';
+    }, 100);
+
+    // Update the sub-text
+    if (els.usageSubText) {
+      if (nextMilestone) {
+        const remaining = nextMilestone.count - count;
+        els.usageSubText.textContent = remaining + ' more to reach ' + nextMilestone.count + '!';
+      } else {
+        els.usageSubText.textContent = 'You are a power user!';
+      }
+    }
+
+    // Check for milestone celebrations
+    checkUsageMilestone(els, count, status.lastCelebratedMilestone || 0);
+
+  } catch (error) {
+    console.error('[Popup] Failed to load usage stats:', error);
+  }
+}
+
+/**
+ * Show a milestone celebration toast if the user hit a new milestone.
+ * @param {Record<string, HTMLElement>} els
+ * @param {number} count — current weekly session count
+ * @param {number} lastCelebrated — highest milestone already celebrated
+ */
+async function checkUsageMilestone(els, count, lastCelebrated) {
+  const milestone = USAGE_MILESTONES.slice().reverse().find(m => count >= m.count);
+  if (!milestone) return;
+  if (lastCelebrated >= milestone.count) return; // Already celebrated
+
+  if (!els.milestoneToast) return;
+
+  if (els.milestoneIcon) els.milestoneIcon.textContent = milestone.icon;
+  if (els.milestoneTitle) els.milestoneTitle.textContent = milestone.title;
+  if (els.milestoneMessage) els.milestoneMessage.textContent = milestone.message;
+  els.milestoneToast.removeAttribute('hidden');
+
+  // Mark this milestone as celebrated
+  await sendMessage({ type: 'SET_LAST_CELEBRATED_MILESTONE', milestone: milestone.count });
+
+  if (els.milestoneDismiss) {
+    els.milestoneDismiss.addEventListener('click', () => {
+      els.milestoneToast.setAttribute('hidden', '');
+    }, { once: true });
+  }
+
+  // Auto-dismiss after 8 seconds
+  setTimeout(() => {
+    if (els.milestoneToast && !els.milestoneToast.hasAttribute('hidden')) {
+      els.milestoneToast.setAttribute('hidden', '');
+    }
+  }, 8000);
+}
+
+// ---------------------------------------------------------------------------
+// Smart Rating Prompt
+// ---------------------------------------------------------------------------
+
+/** Rating prompt configuration */
+const RATING_CONFIG = {
+  minSessions: 10,           // Minimum completed sessions before showing
+  minDaysInstalled: 7,       // Minimum days since install
+  maxPrompts: 3,             // Maximum number of prompts ever
+  cooldownMs: 30 * 24 * 60 * 60 * 1000, // 30 days between prompts
+  reviewUrl: '' // Will be dynamically built with extension ID
+};
+
+/**
+ * Initialize the smart rating prompt.
+ * Shows a subtle rating card in the popup if eligibility criteria are met.
+ * @param {Record<string, HTMLElement>} els
+ */
+async function initRatingPrompt(els) {
+  if (!els.ratingCard || !els.btnRateStore || !els.btnRateDismiss) return;
+
+  try {
+    const result = await sendMessage({ type: 'GET_RATING_STATE' });
+    if (!result || result.error) return;
+
+    const ratingState = result.ratingState || {
+      prompted: false,
+      dismissed: false,
+      lastPromptDate: null,
+      promptCount: 0
+    };
+
+    const sessionCount = result.sessionCount || 0;
+    const installDate = result.installDate;
+
+    // Check eligibility
+    if (!shouldShowRating(ratingState, sessionCount, installDate)) return;
+
+    // Populate stars using DOM API (no innerHTML with user data)
+    const starsEl = els.ratingCard.querySelector('.rating-card__stars');
+    if (starsEl) {
+      starsEl.textContent = '';
+      for (let i = 0; i < 5; i++) {
+        const star = document.createElement('span');
+        star.textContent = '\u2605';
+        star.style.color = '#F59E0B';
+        starsEl.appendChild(star);
+      }
+    }
+
+    // Show the card
+    els.ratingCard.removeAttribute('hidden');
+
+    // Update the rating state to record this prompt
+    ratingState.prompted = true;
+    ratingState.promptCount = (ratingState.promptCount || 0) + 1;
+    ratingState.lastPromptDate = new Date().toISOString();
+    await sendMessage({ type: 'UPDATE_RATING_STATE', ratingState: ratingState });
+
+    // "Rate on Chrome Store" button
+    els.btnRateStore.addEventListener('click', async () => {
+      // Build the Chrome Web Store review URL using the extension's own ID
+      const extId = chrome.runtime.id;
+      const reviewUrl = 'https://chromewebstore.google.com/detail/' + extId + '/reviews';
+      chrome.tabs.create({ url: reviewUrl });
+
+      // Mark as rated so we never show again
+      ratingState.dismissed = true;
+      await sendMessage({ type: 'UPDATE_RATING_STATE', ratingState: ratingState });
+      els.ratingCard.setAttribute('hidden', '');
+    }, { once: true });
+
+    // "Not now" button
+    els.btnRateDismiss.addEventListener('click', async () => {
+      ratingState.dismissed = false; // Not permanent — just this time
+      ratingState.lastPromptDate = new Date().toISOString();
+      await sendMessage({ type: 'UPDATE_RATING_STATE', ratingState: ratingState });
+      els.ratingCard.setAttribute('hidden', '');
+    }, { once: true });
+
+  } catch (error) {
+    console.error('[Popup] Rating prompt error:', error);
+  }
+}
+
+/**
+ * Determine if the rating prompt should be shown.
+ * @param {object} ratingState
+ * @param {number} sessionCount
+ * @param {string|null} installDate
+ * @returns {boolean}
+ */
+function shouldShowRating(ratingState, sessionCount, installDate) {
+  // Already dismissed permanently (clicked "Rate")
+  if (ratingState.dismissed === true) return false;
+
+  // Max prompts reached
+  if ((ratingState.promptCount || 0) >= RATING_CONFIG.maxPrompts) return false;
+
+  // Not enough sessions
+  if (sessionCount < RATING_CONFIG.minSessions) return false;
+
+  // Not enough days since install
+  if (installDate) {
+    const daysSinceInstall = (Date.now() - new Date(installDate).getTime()) / (1000 * 60 * 60 * 24);
+    if (daysSinceInstall < RATING_CONFIG.minDaysInstalled) return false;
+  }
+
+  // Cooldown after last prompt
+  if (ratingState.lastPromptDate) {
+    const msSinceLastPrompt = Date.now() - new Date(ratingState.lastPromptDate).getTime();
+    if (msSinceLastPrompt < RATING_CONFIG.cooldownMs) return false;
+  }
+
+  return true;
+}
+
+// ---------------------------------------------------------------------------
 // Timer Polling
 // ---------------------------------------------------------------------------
 
@@ -1070,6 +1441,14 @@ async function init() {
 
   // Bind all interactive events
   bindEvents(els, state);
+
+  // Initialize growth features
+  initTipOfTheDay(els);
+  initShareProgress(els, state);
+
+  // Initialize conversion optimization features
+  initUsageCounter(els);
+  initRatingPrompt(els);
 
   // Listen for storage changes to stay in sync while popup is open
   chrome.storage.onChanged.addListener((changes, areaName) => {

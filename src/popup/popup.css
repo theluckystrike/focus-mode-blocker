@@ -1396,11 +1396,12 @@ a {
 .footer {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   height: 36px;
   flex-shrink: 0;
   border-top: 1px solid var(--color-border);
   background-color: var(--color-bg);
+  padding: 0 var(--space-md);
 }
 
 .footer__link {
@@ -1424,6 +1425,352 @@ a {
 
 #panel-stats .card:last-child {
   margin-bottom: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Share Your Progress Button (Stats tab)
+   -------------------------------------------------------------------------- */
+.share-progress-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-share-progress {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  width: 100%;
+  height: 40px;
+  padding: 0 var(--space-lg);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: none;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.btn-share-progress:hover {
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.btn-share-progress:active {
+  transform: scale(0.98);
+}
+
+.btn-share-progress .share-icon {
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Tip of the Day (Home tab)
+   -------------------------------------------------------------------------- */
+.tip-of-the-day {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--color-primary);
+}
+
+.tip-of-the-day__content {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  flex: 1;
+  min-width: 0;
+}
+
+.tip-of-the-day__icon {
+  flex-shrink: 0;
+  color: var(--color-primary);
+  margin-top: 1px;
+}
+
+.tip-of-the-day__text {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.tip-of-the-day__dismiss {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.tip-of-the-day__dismiss:hover {
+  color: var(--color-text-secondary);
+  background-color: var(--color-bg-secondary);
+}
+
+/* --------------------------------------------------------------------------
+   Usage Counter (below tab bar)
+   -------------------------------------------------------------------------- */
+.usage-counter {
+  padding: var(--space-md) var(--space-xl);
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.usage-counter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.usage-counter-label {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.usage-counter-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-primary);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.usage-counter-value.bump {
+  transform: scale(1.3);
+}
+
+.usage-counter-bar {
+  width: 100%;
+  height: 4px;
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.usage-counter-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary), #7C3AED);
+  border-radius: var(--radius-full);
+  transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.usage-counter-sub {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Milestone Celebration Toast
+   -------------------------------------------------------------------------- */
+.milestone-toast {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-xl);
+  background: linear-gradient(135deg, #EEF2FF, #F5F3FF);
+  border-bottom: 1px solid #C7D2FE;
+  animation: milestone-slide-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  flex-shrink: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .milestone-toast {
+    background: linear-gradient(135deg, #312e81, #3b0764);
+    border-bottom-color: #4338CA;
+  }
+}
+
+[data-theme="dark"] .milestone-toast {
+  background: linear-gradient(135deg, #312e81, #3b0764);
+  border-bottom-color: #4338CA;
+}
+
+@keyframes milestone-slide-in {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.milestone-icon {
+  font-size: 24px;
+  color: var(--color-warning);
+  animation: milestone-spin 0.6s ease-in-out;
+  flex-shrink: 0;
+}
+
+@keyframes milestone-spin {
+  0% { transform: rotate(0deg) scale(0); }
+  50% { transform: rotate(180deg) scale(1.2); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+.milestone-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.milestone-text strong {
+  display: block;
+  font-size: 13px;
+  color: var(--color-text);
+  margin-bottom: 2px;
+}
+
+.milestone-text span {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.milestone-dismiss {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: var(--space-xs);
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.milestone-dismiss:hover {
+  color: var(--color-text-secondary);
+}
+
+/* --------------------------------------------------------------------------
+   Rating Card (Smart Rating Prompt)
+   -------------------------------------------------------------------------- */
+.rating-card {
+  padding: var(--space-md);
+  background: var(--color-pro-bg);
+  border: 1px solid #FDE68A;
+  border-radius: var(--radius-md);
+  animation: rating-fade-in 0.3s ease;
+}
+
+@keyframes rating-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.rating-card__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xs);
+}
+
+.rating-card__stars {
+  display: flex;
+  gap: 2px;
+  font-size: 16px;
+  color: var(--color-warning);
+}
+
+.rating-card__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.rating-card__body {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+  margin-bottom: var(--space-md);
+}
+
+.rating-card__actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.rating-card__btn-primary {
+  background-color: var(--color-warning);
+  color: #ffffff;
+  border: none;
+  font-weight: 600;
+}
+
+.rating-card__btn-primary:hover {
+  background-color: #D97706;
+}
+
+.rating-card__btn-secondary {
+  background: transparent;
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+}
+
+.rating-card__btn-secondary:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+/* --------------------------------------------------------------------------
+   Social Proof Footer
+   -------------------------------------------------------------------------- */
+.social-proof-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-lg);
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.social-proof-users {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.social-proof-icon {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}
+
+.social-proof-users strong {
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
+/* --------------------------------------------------------------------------
+   "Most popular" Badge (Pro Features)
+   -------------------------------------------------------------------------- */
+.popular-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 6px;
+  background: var(--color-warning-light);
+  color: var(--color-pro-text);
+  border-radius: var(--radius-sm);
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-left: var(--space-xs);
+  vertical-align: middle;
+  line-height: 1.4;
 }
 
 /* --------------------------------------------------------------------------

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to Focus Mode</title>
+  <link rel="stylesheet" href="welcome.css">
+</head>
+<body>
+  <main class="welcome-container" role="main">
+    <!-- Progress indicator -->
+    <div class="step-indicator" role="progressbar" aria-valuemin="1" aria-valuemax="3" aria-valuenow="1" id="step-indicator">
+      <div class="step-dot step-dot--active" data-step="1"></div>
+      <div class="step-dot" data-step="2"></div>
+      <div class="step-dot" data-step="3"></div>
+    </div>
+
+    <!-- ===== Step 1: Welcome ===== -->
+    <section class="step" id="step-1" aria-label="Welcome">
+      <div class="step-icon">
+        <svg viewBox="0 0 128 128" width="72" height="72">
+          <defs>
+            <linearGradient id="shieldGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#6366f1" />
+              <stop offset="100%" stop-color="#06b6d4" />
+            </linearGradient>
+          </defs>
+          <path d="M64 8C64 8,20 22,20 22L20 58C20 88,40 108,64 120C88 108,108 88,108 58L108 22C108 22,64 8,64 8Z" fill="url(#shieldGrad)" />
+          <circle cx="64" cy="62" r="26" fill="none" stroke="white" stroke-width="3.5" opacity="0.9" />
+          <circle cx="64" cy="62" r="13" fill="none" stroke="white" stroke-width="3" opacity="0.9" />
+          <circle cx="64" cy="62" r="4" fill="white" opacity="0.95" />
+        </svg>
+      </div>
+      <h1 class="step-title">Welcome to Focus Mode</h1>
+      <p class="step-desc">Block distracting websites and stay focused on what matters. Here is what you get:</p>
+      <ul class="feature-list" role="list">
+        <li class="feature-list__item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          <div>
+            <strong>Block distracting sites</strong>
+            <span>Add websites to your blocklist and they are blocked during focus sessions.</span>
+          </div>
+        </li>
+        <li class="feature-list__item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <div>
+            <strong>Pomodoro timer</strong>
+            <span>Built-in focus timer with automatic breaks to keep you sharp.</span>
+          </div>
+        </li>
+        <li class="feature-list__item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="20" x2="18" y2="10"/>
+            <line x1="12" y1="20" x2="12" y2="4"/>
+            <line x1="6" y1="20" x2="6" y2="14"/>
+          </svg>
+          <div>
+            <strong>Track your progress</strong>
+            <span>Focus Score, streaks, and daily stats help you build better habits.</span>
+          </div>
+        </li>
+      </ul>
+      <button type="button" class="btn-welcome btn-welcome--primary" id="btn-step1-next">
+        Get Started
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </button>
+    </section>
+
+    <!-- ===== Step 2: Add Sites ===== -->
+    <section class="step" id="step-2" aria-label="Add your first blocked sites" hidden>
+      <div class="step-icon step-icon--small">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
+      <h2 class="step-title">Add sites to block</h2>
+      <p class="step-desc">Which websites distract you the most? Add a few to get started. You can always change these later.</p>
+
+      <div class="quick-add-grid" role="group" aria-label="Popular sites to block">
+        <button type="button" class="quick-add-btn" data-domain="twitter.com">twitter.com</button>
+        <button type="button" class="quick-add-btn" data-domain="facebook.com">facebook.com</button>
+        <button type="button" class="quick-add-btn" data-domain="reddit.com">reddit.com</button>
+        <button type="button" class="quick-add-btn" data-domain="instagram.com">instagram.com</button>
+        <button type="button" class="quick-add-btn" data-domain="youtube.com">youtube.com</button>
+        <button type="button" class="quick-add-btn" data-domain="tiktok.com">tiktok.com</button>
+      </div>
+
+      <div class="custom-add-row">
+        <label for="welcome-site-input" class="sr-only">Add a custom website</label>
+        <input type="text" id="welcome-site-input" class="welcome-input" placeholder="Or type a domain, e.g. news.ycombinator.com" autocomplete="off" spellcheck="false">
+        <button type="button" class="btn-welcome btn-welcome--sm" id="btn-custom-add">Add</button>
+      </div>
+
+      <div id="welcome-added-list" class="welcome-added-list" hidden>
+        <p class="welcome-added-heading">Your blocklist:</p>
+        <ul id="welcome-sites-ul" class="welcome-sites-ul" role="list"></ul>
+      </div>
+
+      <div class="step-actions">
+        <button type="button" class="btn-welcome btn-welcome--secondary" id="btn-step2-back">Back</button>
+        <button type="button" class="btn-welcome btn-welcome--primary" id="btn-step2-next">
+          Next
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===== Step 3: Start First Session ===== -->
+    <section class="step" id="step-3" aria-label="Start your first session" hidden>
+      <div class="step-icon step-icon--small">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+      </div>
+      <h2 class="step-title">You are all set!</h2>
+      <p class="step-desc">Click the Focus Mode icon in your toolbar to start your first focus session. Your blocked sites will be inaccessible while you are focusing.</p>
+
+      <div class="ready-card">
+        <div class="ready-card__row">
+          <span class="ready-card__label">Sites to block</span>
+          <span class="ready-card__value" id="ready-site-count">0</span>
+        </div>
+        <div class="ready-card__row">
+          <span class="ready-card__label">Session length</span>
+          <span class="ready-card__value">25 min</span>
+        </div>
+        <div class="ready-card__row">
+          <span class="ready-card__label">Break length</span>
+          <span class="ready-card__value">5 min</span>
+        </div>
+      </div>
+
+      <div class="step-actions">
+        <button type="button" class="btn-welcome btn-welcome--secondary" id="btn-step3-back">Back</button>
+        <button type="button" class="btn-welcome btn-welcome--primary btn-welcome--success" id="btn-step3-finish">
+          Open Focus Mode
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <script src="welcome.js"></script>
+</body>
+</html>

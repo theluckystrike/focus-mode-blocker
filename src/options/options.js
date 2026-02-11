@@ -68,6 +68,21 @@ const els = {
 
   // Upgrade section
   upgradeProSection: $('#upgradeProSection'),
+
+  // Privacy & Data
+  errorLoggingToggle: $('#errorLoggingToggle'),
+  usageStatsToggle: $('#usageStatsToggle'),
+  exportDataBtn: $('#exportDataBtn'),
+  deleteAllDataBtn: $('#deleteAllDataBtn'),
+
+  // Delete confirmation dialog
+  deleteConfirmDialog: $('#deleteConfirmDialog'),
+  deleteConfirmInput: $('#deleteConfirmInput'),
+  deleteConfirmCancel: $('#deleteConfirmCancel'),
+  deleteConfirmExecute: $('#deleteConfirmExecute'),
+
+  // Footer
+  privacyPolicyLink: $('#privacyPolicyLink'),
 };
 
 // ---------------------------------------------------------------------------
@@ -76,6 +91,7 @@ const els = {
 
 let currentSettings = null;
 let nuclearCheckInterval = null;
+let privacyPreferences = null;
 
 // ---------------------------------------------------------------------------
 // Init
@@ -91,6 +107,7 @@ async function init() {
   });
 
   await loadSettings();
+  await loadPrivacyPreferences();
   populateForm();
   bindEvents();
   applyTheme(currentSettings.theme || 'system');
@@ -98,6 +115,7 @@ async function init() {
   showVersion();
   initDebugLog();
   initLockedDurations();
+  initPrivacyData();
   await initProSection();
 }
 
@@ -201,6 +219,12 @@ function populateForm() {
     els.startTime.value = schedule.startTime || '09:00';
     els.endTime.value = schedule.endTime || '17:00';
   }
+
+  // Privacy controls
+  if (privacyPreferences && els.errorLoggingToggle && els.usageStatsToggle) {
+    els.errorLoggingToggle.checked = privacyPreferences.errorLogging !== false; // default true
+    els.usageStatsToggle.checked = privacyPreferences.usageStats !== false; // default true
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -269,6 +293,27 @@ function bindEvents() {
       }
     }
   });
+
+  // Privacy toggles
+  if (els.errorLoggingToggle) {
+    els.errorLoggingToggle.addEventListener('change', onErrorLoggingToggle);
+  }
+  if (els.usageStatsToggle) {
+    els.usageStatsToggle.addEventListener('change', onUsageStatsToggle);
+  }
+
+  // Data management
+  if (els.exportDataBtn) {
+    els.exportDataBtn.addEventListener('click', onExportData);
+  }
+  if (els.deleteAllDataBtn) {
+    els.deleteAllDataBtn.addEventListener('click', onDeleteAllDataClick);
+  }
+
+  // Footer links
+  if (els.privacyPolicyLink) {
+    els.privacyPolicyLink.addEventListener('click', onPrivacyPolicyClick);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -512,6 +557,7 @@ function updateNuclearCountdown(endsAt) {
 // ---------------------------------------------------------------------------
 
 async function saveSettings() {
+  // DATA: Stores user preferences (theme, sound, schedule, etc.). User-initiated. Not transmitted externally.
   await setStorage({ settings: currentSettings });
 }
 
@@ -605,10 +651,255 @@ async function onCopyLog() {
 
 async function onClearLog() {
   try {
+    // DATA: Clears the local error log. User-initiated. Not transmitted externally.
     await chrome.storage.local.set({ errorLog: [] });
     els.debugLogList.replaceChildren();
     els.debugLogEmpty.hidden = false;
   } catch (err) {
     console.warn('Failed to clear log:', err);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Privacy Preferences
+// ---------------------------------------------------------------------------
+
+const PRIVACY_DEFAULTS = {
+  errorLogging: true,
+  usageStats: true,
+};
+
+async function loadPrivacyPreferences() {
+  try {
+    const result = await chrome.storage.local.get('privacyPreferences');
+    privacyPreferences = result.privacyPreferences || { ...PRIVACY_DEFAULTS };
+  } catch (err) {
+    console.warn('Failed to load privacy preferences:', err);
+    privacyPreferences = { ...PRIVACY_DEFAULTS };
+  }
+}
+
+async function savePrivacyPreferences() {
+  try {
+    await chrome.storage.local.set({ privacyPreferences });
+  } catch (err) {
+    console.warn('Failed to save privacy preferences:', err);
+  }
+}
+
+function onErrorLoggingToggle() {
+  const enabled = els.errorLoggingToggle.checked;
+  privacyPreferences.errorLogging = enabled;
+  savePrivacyPreferences();
+
+  if (!enabled) {
+    // Clear the error log when disabling
+    chrome.storage.local.set({ errorLog: [] });
+    showOptionsToast('Error logging disabled. Log cleared.', 2500);
+  } else {
+    showOptionsToast('Error logging enabled.', 2000);
+  }
+}
+
+function onUsageStatsToggle() {
+  const enabled = els.usageStatsToggle.checked;
+  privacyPreferences.usageStats = enabled;
+  savePrivacyPreferences();
+
+  if (!enabled) {
+    showOptionsToast('Usage statistics disabled.', 2500);
+  } else {
+    showOptionsToast('Usage statistics enabled.', 2000);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Privacy & Data Section Init
+// ---------------------------------------------------------------------------
+
+function initPrivacyData() {
+  if (!els.deleteConfirmDialog) return;
+
+  // Delete confirmation dialog events
+  els.deleteConfirmCancel.addEventListener('click', () => {
+    els.deleteConfirmDialog.close();
+    els.deleteConfirmInput.value = '';
+    els.deleteConfirmExecute.disabled = true;
+    els.deleteConfirmInput.classList.remove('delete-confirm-input--valid');
+    els.deleteAllDataBtn.focus();
+  });
+
+  els.deleteConfirmInput.addEventListener('input', () => {
+    const isValid = els.deleteConfirmInput.value.trim().toUpperCase() === 'DELETE';
+    els.deleteConfirmExecute.disabled = !isValid;
+    if (isValid) {
+      els.deleteConfirmInput.classList.add('delete-confirm-input--valid');
+    } else {
+      els.deleteConfirmInput.classList.remove('delete-confirm-input--valid');
+    }
+  });
+
+  els.deleteConfirmExecute.addEventListener('click', onDeleteAllDataConfirmed);
+
+  // Close on backdrop click
+  els.deleteConfirmDialog.addEventListener('click', (e) => {
+    if (e.target === els.deleteConfirmDialog) {
+      els.deleteConfirmDialog.close();
+      els.deleteConfirmInput.value = '';
+      els.deleteConfirmExecute.disabled = true;
+      els.deleteConfirmInput.classList.remove('delete-confirm-input--valid');
+      els.deleteAllDataBtn.focus();
+    }
+  });
+
+  // Reset on Escape
+  els.deleteConfirmDialog.addEventListener('cancel', () => {
+    els.deleteConfirmInput.value = '';
+    els.deleteConfirmExecute.disabled = true;
+    els.deleteConfirmInput.classList.remove('delete-confirm-input--valid');
+    els.deleteAllDataBtn.focus();
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Data Export
+// ---------------------------------------------------------------------------
+
+async function onExportData() {
+  try {
+    els.exportDataBtn.disabled = true;
+    els.exportDataBtn.textContent = 'Exporting...';
+
+    // Gather all data from chrome.storage.local
+    const localData = await chrome.storage.local.get(null);
+
+    // Build the export object
+    let extensionName = 'Focus Mode - Blocker';
+    let extensionVersion = '1.0.0';
+    try {
+      const manifest = chrome.runtime.getManifest();
+      extensionName = manifest.name;
+      extensionVersion = manifest.version;
+    } catch (_) { /* fallback values used */ }
+
+    const exportData = {
+      exportDate: new Date().toISOString(),
+      extensionName: extensionName,
+      extensionVersion: extensionVersion,
+      localStorage: localData,
+    };
+
+    // Convert to pretty JSON
+    const jsonStr = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    // Generate filename with date
+    const dateStr = new Date().toISOString().split('T')[0];
+    const filename = `focus-mode-blocker-data-export-${dateStr}.json`;
+
+    // Trigger download
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+
+    // Cleanup
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
+
+    showOptionsToast('Data exported successfully.', 2500);
+  } catch (err) {
+    console.error('Failed to export data:', err);
+    showOptionsToast('Export failed. Please try again.', 3000);
+  } finally {
+    els.exportDataBtn.disabled = false;
+    // Use DOM APIs instead of innerHTML to satisfy CWS code safety requirements
+    els.exportDataBtn.textContent = '';
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const exportSvg = document.createElementNS(svgNS, 'svg');
+    exportSvg.setAttribute('width', '16');
+    exportSvg.setAttribute('height', '16');
+    exportSvg.setAttribute('viewBox', '0 0 24 24');
+    exportSvg.setAttribute('fill', 'none');
+    exportSvg.setAttribute('stroke', 'currentColor');
+    exportSvg.setAttribute('stroke-width', '2');
+    exportSvg.setAttribute('stroke-linecap', 'round');
+    exportSvg.setAttribute('stroke-linejoin', 'round');
+    exportSvg.setAttribute('aria-hidden', 'true');
+    const exportPath = document.createElementNS(svgNS, 'path');
+    exportPath.setAttribute('d', 'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4');
+    const exportPolyline = document.createElementNS(svgNS, 'polyline');
+    exportPolyline.setAttribute('points', '7 10 12 15 17 10');
+    const exportLine = document.createElementNS(svgNS, 'line');
+    exportLine.setAttribute('x1', '12');
+    exportLine.setAttribute('y1', '15');
+    exportLine.setAttribute('x2', '12');
+    exportLine.setAttribute('y2', '3');
+    exportSvg.appendChild(exportPath);
+    exportSvg.appendChild(exportPolyline);
+    exportSvg.appendChild(exportLine);
+    els.exportDataBtn.appendChild(exportSvg);
+    els.exportDataBtn.appendChild(document.createTextNode(' Export My Data'));
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Data Delete
+// ---------------------------------------------------------------------------
+
+function onDeleteAllDataClick() {
+  // Reset the dialog state
+  els.deleteConfirmInput.value = '';
+  els.deleteConfirmExecute.disabled = true;
+  els.deleteConfirmInput.classList.remove('delete-confirm-input--valid');
+
+  // Open the confirmation dialog
+  els.deleteConfirmDialog.showModal();
+  els.deleteConfirmInput.focus();
+}
+
+async function onDeleteAllDataConfirmed() {
+  // Double check the input value
+  if (els.deleteConfirmInput.value.trim().toUpperCase() !== 'DELETE') {
+    return;
+  }
+
+  try {
+    els.deleteConfirmExecute.disabled = true;
+    els.deleteConfirmExecute.textContent = 'Deleting...';
+
+    // Clear all storage
+    await chrome.storage.local.clear();
+
+    els.deleteConfirmDialog.close();
+    showOptionsToast('All data has been deleted. Reloading...', 2000);
+
+    // Reload the page after a brief delay so the extension re-initializes
+    setTimeout(() => {
+      window.location.reload();
+    }, 2000);
+  } catch (err) {
+    console.error('Failed to delete data:', err);
+    els.deleteConfirmExecute.disabled = false;
+    els.deleteConfirmExecute.textContent = 'Delete Everything';
+    showOptionsToast('Deletion failed. Please try again.', 3000);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Footer Links
+// ---------------------------------------------------------------------------
+
+function onPrivacyPolicyClick(e) {
+  e.preventDefault();
+  try {
+    const url = chrome.runtime.getURL('src/legal/privacy-policy.html');
+    window.open(url, '_blank');
+  } catch (err) {
+    console.warn('Failed to open privacy policy:', err);
   }
 }

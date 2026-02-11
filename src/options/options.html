@@ -269,6 +269,152 @@
       </details>
     </section>
 
+    <!-- ===== Help & Feedback ===== -->
+    <section class="card" aria-labelledby="help-heading" id="helpFeedbackSection">
+      <h2 id="help-heading">Help & Feedback</h2>
+
+      <!-- FAQ Section -->
+      <div class="faq-section" id="faqSection">
+        <div class="faq-search-wrapper">
+          <svg class="faq-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="text" id="faqSearchInput" class="faq-search-input" placeholder="Search help articles..." aria-label="Search frequently asked questions">
+        </div>
+        <p class="faq-results-count" id="faqResultsCount"></p>
+        <div class="faq-list" id="faqList" role="list" aria-label="Frequently asked questions">
+          <!-- FAQ items rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Feedback Form -->
+      <div class="feedback-section" id="feedbackSection">
+        <h3 class="feedback-section__title">Send Feedback</h3>
+
+        <div class="feedback-form" id="feedbackForm">
+          <div class="feedback-field">
+            <label for="feedbackType" class="feedback-label">Type</label>
+            <select id="feedbackType" class="feedback-select" aria-label="Feedback type">
+              <option value="bug">Bug Report</option>
+              <option value="feature">Feature Request</option>
+              <option value="general" selected>General Feedback</option>
+            </select>
+          </div>
+
+          <div class="feedback-field">
+            <label for="feedbackSubject" class="feedback-label">Subject <span class="feedback-required">*</span></label>
+            <input type="text" id="feedbackSubject" class="feedback-input" maxlength="100" placeholder="Brief summary of your feedback" required aria-required="true">
+            <span class="feedback-error" id="feedbackSubjectError" hidden>Subject is required</span>
+          </div>
+
+          <div class="feedback-field">
+            <label for="feedbackDescription" class="feedback-label">Description <span class="feedback-required">*</span></label>
+            <textarea id="feedbackDescription" class="feedback-textarea" maxlength="2000" rows="5" placeholder="Describe your feedback in detail..." required aria-required="true"></textarea>
+            <div class="feedback-textarea-footer">
+              <span class="feedback-error" id="feedbackDescriptionError" hidden>Description is required</span>
+              <span class="feedback-char-count" id="feedbackCharCount">0 / 2000</span>
+            </div>
+          </div>
+
+          <!-- Diagnostic data panel (shown for bug reports) -->
+          <div class="feedback-diagnostics" id="feedbackDiagnostics" hidden>
+            <label class="feedback-diagnostics-toggle">
+              <input type="checkbox" id="feedbackIncludeDiagnostics" checked>
+              <span>Include diagnostic data with this report</span>
+            </label>
+            <details class="feedback-diagnostics-preview" id="feedbackDiagnosticsPreview">
+              <summary>View diagnostic data</summary>
+              <pre class="feedback-diagnostics-code" id="feedbackDiagnosticsCode"></pre>
+            </details>
+          </div>
+
+          <div class="feedback-actions">
+            <button type="button" class="btn btn-primary-custom" id="feedbackSubmitBtn">Submit Feedback</button>
+          </div>
+
+          <div class="feedback-success" id="feedbackSuccess" hidden>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            <span>Thank you! Your feedback has been submitted.</span>
+          </div>
+
+          <div class="feedback-error-banner" id="feedbackErrorBanner" hidden>
+            <span id="feedbackErrorBannerText">An error occurred. Please try again.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Changelog ===== -->
+    <section class="card" aria-labelledby="changelog-heading" id="changelogSection">
+      <h2 id="changelog-heading">What's New</h2>
+      <p class="section-desc">See what changed in each version</p>
+      <div class="changelog-timeline" id="changelogTimeline" role="list" aria-label="Version history">
+        <!-- Changelog entries rendered by JS -->
+      </div>
+    </section>
+
+    <!-- ===== Privacy & Data ===== -->
+    <section class="card" aria-labelledby="privacy-data-heading">
+      <h2 id="privacy-data-heading">Privacy &amp; Data</h2>
+      <p class="section-desc">Control your privacy settings and manage your extension data.</p>
+
+      <!-- Privacy Controls -->
+      <div class="privacy-controls">
+        <div class="setting-row">
+          <div class="setting-info">
+            <label for="errorLoggingToggle">Error logging</label>
+            <span class="setting-desc">Record extension errors locally to help diagnose issues. Logs are auto-pruned after 7 days.</span>
+          </div>
+          <label class="toggle" aria-label="Toggle error logging">
+            <input type="checkbox" id="errorLoggingToggle">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <label for="usageStatsToggle">Usage statistics</label>
+            <span class="setting-desc">Track session counts, focus minutes, and productivity scores. All data stays on your device.</span>
+          </div>
+          <label class="toggle" aria-label="Toggle usage statistics">
+            <input type="checkbox" id="usageStatsToggle">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Data Management -->
+      <div class="data-management">
+        <div class="data-management__actions">
+          <button type="button" class="btn btn-secondary data-btn" id="exportDataBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Export My Data
+          </button>
+          <button type="button" class="btn btn-danger-outline data-btn" id="deleteAllDataBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              <line x1="10" y1="11" x2="10" y2="17"/>
+              <line x1="14" y1="11" x2="14" y2="17"/>
+            </svg>
+            Delete All Data
+          </button>
+        </div>
+        <p class="data-management__note">
+          <strong>Export</strong> downloads a JSON file containing all data stored by this extension.
+          <strong>Delete</strong> permanently removes all stored data and resets the extension.
+        </p>
+      </div>
+    </section>
+
     <!-- ===== Upgrade to Pro ===== -->
     <section class="card card--upgrade" aria-labelledby="upgrade-heading" id="upgradeProSection">
       <div class="upgrade-header">
@@ -306,7 +452,69 @@
         Coming Soon
       </button>
     </section>
+
+    <!-- ===== More from Zovo ===== -->
+    <section class="card card--more-from" aria-labelledby="more-from-heading">
+      <h2 id="more-from-heading" class="more-from__heading">More from Zovo</h2>
+      <p class="more-from__desc">Check out our other productivity tools:</p>
+      <ul class="more-from__list" role="list">
+        <li class="more-from__item">
+          <div class="more-from__icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7"/>
+              <rect x="14" y="3" width="7" height="7"/>
+              <rect x="14" y="14" width="7" height="7"/>
+              <rect x="3" y="14" width="7" height="7"/>
+            </svg>
+          </div>
+          <div class="more-from__info">
+            <span class="more-from__name">Tab Manager Pro</span>
+            <span class="more-from__tagline">Organize and manage your tabs efficiently</span>
+          </div>
+          <a href="https://chrome.google.com/webstore" target="_blank" rel="noopener noreferrer" class="more-from__link" aria-label="View Tab Manager Pro">View</a>
+        </li>
+        <li class="more-from__item">
+          <div class="more-from__icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div class="more-from__info">
+            <span class="more-from__name">Time Tracker</span>
+            <span class="more-from__tagline">Track where your time goes online</span>
+          </div>
+          <a href="https://chrome.google.com/webstore" target="_blank" rel="noopener noreferrer" class="more-from__link" aria-label="View Time Tracker">View</a>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ===== Footer ===== -->
+    <footer class="options-footer">
+      <a href="#" id="privacyPolicyLink" class="options-footer__link">Privacy Policy</a>
+      <span class="options-footer__sep" aria-hidden="true">|</span>
+      <a href="mailto:support@zovo.dev" class="options-footer__link">Contact</a>
+    </footer>
   </main>
+
+  <!-- Delete Confirmation Dialog -->
+  <dialog id="deleteConfirmDialog" class="confirm-dialog" aria-labelledby="deleteConfirmTitle" aria-describedby="deleteConfirmDesc">
+    <div class="dialog-content">
+      <h3 id="deleteConfirmTitle">Delete All Data?</h3>
+      <p id="deleteConfirmDesc">
+        This will <strong>permanently delete</strong> all extension data including your blocklist,
+        settings, session history, and statistics. This action <strong>cannot be undone</strong>.
+      </p>
+      <p class="delete-confirm-instruction">
+        Type <strong>DELETE</strong> to confirm:
+      </p>
+      <input type="text" id="deleteConfirmInput" class="delete-confirm-input" placeholder="Type DELETE" autocomplete="off" spellcheck="false">
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-secondary" id="deleteConfirmCancel">Cancel</button>
+        <button type="button" class="btn btn-danger" id="deleteConfirmExecute" disabled>Delete Everything</button>
+      </div>
+    </div>
+  </dialog>
 
   <!-- Toast notification for upgrade messages -->
   <div id="optionsToast" class="options-toast" role="status" aria-live="polite" hidden>

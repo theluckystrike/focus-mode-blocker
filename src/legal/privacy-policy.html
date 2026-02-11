@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — Focus Mode - Blocker</title>
+  <link rel="stylesheet" href="legal-styles.css">
+</head>
+<body>
+  <div class="legal-container">
+    <a href="#" class="legal-back-link" id="backLink">&larr; Back to Settings</a>
+
+    <header class="legal-header">
+      <h1>Privacy Policy</h1>
+      <p class="effective-date">Effective Date: February 11, 2026</p>
+      <p class="last-updated">Last Updated: February 11, 2026</p>
+    </header>
+
+    <nav class="legal-toc">
+      <h2>Contents</h2>
+      <ol>
+        <li><a href="#introduction">Introduction</a></li>
+        <li><a href="#data-we-collect">Data We Collect</a></li>
+        <li><a href="#how-we-use-data">How We Use Data</a></li>
+        <li><a href="#data-sharing">Data Sharing</a></li>
+        <li><a href="#data-storage-security">Data Storage and Security</a></li>
+        <li><a href="#user-rights">Your Rights (GDPR/CCPA)</a></li>
+        <li><a href="#childrens-privacy">Children's Privacy</a></li>
+        <li><a href="#changes">Changes to This Policy</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ol>
+    </nav>
+
+    <main class="legal-content">
+
+      <!-- Section 1: Introduction -->
+      <section id="introduction">
+        <h2>1. Introduction</h2>
+        <p>
+          <strong>Focus Mode - Blocker</strong> is a browser productivity extension developed and operated by
+          <strong>Zovo</strong> (<a href="https://zovo.dev" target="_blank" rel="noopener noreferrer">zovo.dev</a>).
+          It helps users stay focused by blocking distracting websites during focus sessions, providing
+          session timers, and tracking productivity statistics.
+        </p>
+        <p>
+          This Privacy Policy explains what data the extension collects, how that data is used,
+          where it is stored, and what rights you have regarding your data. We are committed to
+          transparency and to protecting your privacy.
+        </p>
+      </section>
+
+      <!-- Section 2: Data We Collect -->
+      <section id="data-we-collect">
+        <h2>2. Data We Collect</h2>
+
+        <h3>2.1 Data Stored Locally</h3>
+        <p>
+          Focus Mode - Blocker stores the following data locally on your device using the
+          <code>chrome.storage.local</code> API. <strong>This data never leaves your browser</strong>
+          unless you explicitly export it.
+        </p>
+        <ul>
+          <li><strong>Blocklist:</strong> The list of websites you choose to block during focus sessions, including any active pre-built blocklist selections.</li>
+          <li><strong>Timer and session state:</strong> Current timer status, session duration, and cycle information to maintain your focus session across popup opens/closes.</li>
+          <li><strong>Productivity statistics:</strong> Daily focus minutes, sessions completed, distraction attempts blocked, focus score, and streak data.</li>
+          <li><strong>Session history:</strong> A record of your recent focus sessions (last 7 days for free tier).</li>
+          <li><strong>User preferences and settings:</strong> Theme selection, sound preferences, volume level, notification muting, schedule configuration, and nuclear mode settings.</li>
+          <li><strong>Privacy preferences:</strong> Your choices regarding error logging and usage statistics collection.</li>
+          <li><strong>Error log:</strong> If error logging is enabled, a log of the last 50 extension errors (auto-pruned after 7 days) to help diagnose issues.</li>
+          <li><strong>Onboarding state:</strong> Whether you have completed the initial setup, install date, and total session count.</li>
+        </ul>
+
+        <h3>2.2 Data We Do NOT Collect</h3>
+        <p>Focus Mode - Blocker does <strong>not</strong> collect, access, or store any of the following:</p>
+        <ul>
+          <li>Your browsing history or the content of web pages you visit</li>
+          <li>Passwords, form data, or autofill information</li>
+          <li>Personal files, photos, or documents</li>
+          <li>Your name, email address, or any personally identifiable information</li>
+          <li>Location data or IP addresses</li>
+          <li>Cookies or tracking pixels from third-party services</li>
+          <li>Microphone, camera, or any device sensor data</li>
+        </ul>
+        <p>
+          The extension uses the <code>declarativeNetRequest</code> permission to block websites
+          you have added to your blocklist. This permission is used solely to redirect matching
+          URLs to the extension's blocked page. The extension does <strong>not</strong> read, modify,
+          or log the content of any web page.
+        </p>
+        <p>
+          The <code>&lt;all_urls&gt;</code> host permission is required exclusively for the site-blocking
+          functionality and the content script that detects when you navigate to a blocked site.
+          No data about your browsing is transmitted anywhere.
+        </p>
+      </section>
+
+      <!-- Section 3: How We Use Data -->
+      <section id="how-we-use-data">
+        <h2>3. How We Use Data</h2>
+        <p>All data stored by the extension is used exclusively for the following purposes:</p>
+        <ul>
+          <li><strong>Providing core functionality:</strong> Blocking distracting websites, running focus timers, and managing your sessions.</li>
+          <li><strong>Remembering your preferences:</strong> Preserving your theme choice, sound settings, blocking schedule, and other configuration between sessions.</li>
+          <li><strong>Displaying your productivity statistics:</strong> Showing focus scores, session history, streaks, and distraction data on the extension's stats panel.</li>
+          <li><strong>Diagnosing issues:</strong> If error logging is enabled, storing error information locally to help troubleshoot problems.</li>
+        </ul>
+        <p>We do <strong>not</strong> sell your data to any third party.</p>
+        <p>We do <strong>not</strong> use your data for advertising or ad targeting.</p>
+        <p>We do <strong>not</strong> use your data for profiling or behavioral analysis beyond what is displayed to you in the extension itself.</p>
+      </section>
+
+      <!-- Section 4: Data Sharing -->
+      <section id="data-sharing">
+        <h2>4. Data Sharing</h2>
+        <p>
+          <strong>We do not share, sell, rent, or transfer your data to any third party.</strong>
+        </p>
+        <p>
+          Focus Mode - Blocker does not include any third-party analytics services, advertising
+          SDKs, or external tracking tools. All data processing happens locally on your device.
+        </p>
+        <p>
+          No data is transmitted to Zovo's servers or any external service. The extension
+          operates entirely offline after installation.
+        </p>
+      </section>
+
+      <!-- Section 5: Data Storage and Security -->
+      <section id="data-storage-security">
+        <h2>5. Data Storage and Security</h2>
+        <p>
+          All extension data is stored locally using Chrome's <code>chrome.storage.local</code> API.
+          This storage is:
+        </p>
+        <ul>
+          <li><strong>Sandboxed:</strong> Chrome isolates each extension's storage, preventing other extensions or websites from accessing your Focus Mode data.</li>
+          <li><strong>Per-profile:</strong> Data is tied to your Chrome profile and is not accessible from other profiles on the same computer.</li>
+          <li><strong>Not encrypted at rest:</strong> While the data is isolated by Chrome's security model, it is not independently encrypted. Anyone with access to your Chrome profile data on disk could theoretically read it.</li>
+        </ul>
+        <p>
+          The total local storage quota for the extension is 10 MB, and a per-write safeguard
+          of 5 MB prevents any single operation from consuming excessive storage.
+        </p>
+      </section>
+
+      <!-- Section 6: User Rights -->
+      <section id="user-rights">
+        <h2>6. Your Rights (GDPR/CCPA)</h2>
+        <p>You have full control over your data. The following rights are available to you:</p>
+
+        <h3>Right to Access</h3>
+        <p>
+          You can view all data stored by the extension at any time. Open the extension's
+          Settings page and navigate to the <strong>Privacy &amp; Data</strong> section to see
+          a summary of stored data.
+        </p>
+
+        <h3>Right to Export (Data Portability)</h3>
+        <p>
+          You can export all of your data as a JSON file using the <strong>"Export My Data"</strong>
+          button in the Privacy &amp; Data section of Settings. The export includes all storage
+          keys, values, and metadata.
+        </p>
+
+        <h3>Right to Delete (Right to Erasure)</h3>
+        <p>
+          You can permanently delete all extension data using the <strong>"Delete All Data"</strong>
+          button in the Privacy &amp; Data section of Settings. This action is irreversible and
+          will remove all stored preferences, statistics, blocklists, and session history.
+        </p>
+
+        <h3>Right to Opt Out</h3>
+        <p>
+          You can disable optional data collection features at any time via the privacy toggle
+          controls in the Privacy &amp; Data section of Settings. You can independently control:
+        </p>
+        <ul>
+          <li><strong>Error logging:</strong> Disable to stop recording error information.</li>
+          <li><strong>Usage statistics:</strong> Disable to stop collecting session and productivity stats.</li>
+        </ul>
+
+        <h3>CCPA Disclosure</h3>
+        <p>
+          Under the California Consumer Privacy Act (CCPA): <strong>We do not sell personal
+          information.</strong> Focus Mode - Blocker does not collect personal information as
+          defined by the CCPA, and no data is shared with or sold to third parties.
+        </p>
+
+        <h3>GDPR Legal Basis</h3>
+        <p>
+          For users in the European Economic Area (EEA), our legal basis for processing data
+          is <strong>legitimate interest</strong> -- specifically, the legitimate interest of
+          providing the core functionality of the extension that you have chosen to install.
+          For optional features such as error logging, the legal basis is your explicit
+          <strong>consent</strong>, which you can withdraw at any time by disabling the
+          relevant toggles.
+        </p>
+      </section>
+
+      <!-- Section 7: Children's Privacy -->
+      <section id="childrens-privacy">
+        <h2>7. Children's Privacy</h2>
+        <p>
+          Focus Mode - Blocker is not directed at children under the age of 13. We do not
+          knowingly collect any data from children. Since the extension does not collect
+          personal information from any user, there is no risk of inadvertent collection
+          of children's data.
+        </p>
+      </section>
+
+      <!-- Section 8: Changes -->
+      <section id="changes">
+        <h2>8. Changes to This Policy</h2>
+        <p>
+          We may update this Privacy Policy from time to time to reflect changes in the
+          extension's functionality or applicable laws. When we make changes:
+        </p>
+        <ul>
+          <li>The "Last Updated" date at the top of this page will be revised.</li>
+          <li>Significant changes will be noted in the extension's changelog.</li>
+          <li>Continued use of the extension after changes constitutes your acceptance of the updated policy.</li>
+        </ul>
+      </section>
+
+      <!-- Section 9: Contact -->
+      <section id="contact">
+        <h2>9. Contact</h2>
+        <p>
+          If you have questions about this Privacy Policy or your data, please contact us:
+        </p>
+        <ul>
+          <li><strong>Email:</strong> <a href="mailto:support@zovo.dev">support@zovo.dev</a></li>
+          <li><strong>Website:</strong> <a href="https://zovo.dev" target="_blank" rel="noopener noreferrer">zovo.dev</a></li>
+        </ul>
+      </section>
+
+    </main>
+
+    <footer class="legal-footer">
+      <p>Focus Mode - Blocker by <a href="https://zovo.dev" target="_blank" rel="noopener noreferrer">Zovo</a></p>
+    </footer>
+  </div>
+
+  <script>
+    // Handle back link - navigate to options page
+    document.getElementById('backLink').addEventListener('click', function(e) {
+      e.preventDefault();
+      // If opened from options, go back; otherwise open options page
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.location.href = chrome.runtime.getURL('src/options/options.html');
+      }
+    });
+  </script>
+</body>
+</html>
