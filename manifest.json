@@ -1,0 +1,68 @@
+{
+  "manifest_version": 3,
+  "name": "Focus Mode - Blocker",
+  "version": "1.0.0",
+  "description": "Block distractions. Build focus. Track your streak.",
+  "permissions": [
+    "storage",
+    "alarms",
+    "notifications",
+    "declarativeNetRequest",
+    "declarativeNetRequestFeedback"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "src/background/service-worker.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_icon": {
+      "16": "src/assets/icons/icon-16.png",
+      "32": "src/assets/icons/icon-32.png",
+      "48": "src/assets/icons/icon-48.png",
+      "128": "src/assets/icons/icon-128.png"
+    },
+    "default_title": "Focus Mode - Blocker"
+  },
+  "icons": {
+    "16": "src/assets/icons/icon-16.png",
+    "32": "src/assets/icons/icon-32.png",
+    "48": "src/assets/icons/icon-48.png",
+    "128": "src/assets/icons/icon-128.png"
+  },
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "dynamic_rules",
+        "enabled": true,
+        "path": "src/rules/dynamic-rules.json"
+      }
+    ]
+  },
+  "commands": {
+    "quick-focus": {
+      "suggested_key": {
+        "default": "Alt+Shift+F",
+        "mac": "Alt+Shift+F"
+      },
+      "description": "Start/Stop Quick Focus Session"
+    },
+    "nuclear-mode": {
+      "suggested_key": {
+        "default": "Alt+Shift+N",
+        "mac": "Alt+Shift+N"
+      },
+      "description": "Activate Nuclear Mode"
+    }
+  },
+  "options_page": "src/options/options.html",
+  "web_accessible_resources": [
+    {
+      "resources": ["src/blocked/blocked.html", "src/blocked/blocked.css", "src/blocked/blocked.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

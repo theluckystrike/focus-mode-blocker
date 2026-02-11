@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="system">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Focus Mode - Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <main class="options-container" role="main">
+    <header class="options-header">
+      <div class="header-icon" aria-hidden="true">
+        <svg viewBox="0 0 128 128" width="40" height="40">
+          <defs>
+            <linearGradient id="hShieldGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#6366f1" />
+              <stop offset="100%" stop-color="#06b6d4" />
+            </linearGradient>
+          </defs>
+          <path d="M64 8C64 8,20 22,20 22L20 58C20 88,40 108,64 120C88 108,108 88,108 58L108 22C108 22,64 8,64 8Z" fill="url(#hShieldGrad)" />
+          <circle cx="64" cy="62" r="26" fill="none" stroke="white" stroke-width="3.5" opacity="0.9" />
+          <circle cx="64" cy="62" r="13" fill="none" stroke="white" stroke-width="3" opacity="0.9" />
+          <circle cx="64" cy="62" r="4" fill="white" opacity="0.95" />
+          <line x1="64" y1="30" x2="64" y2="46" stroke="white" stroke-width="3" stroke-linecap="round" opacity="0.9" />
+          <line x1="64" y1="78" x2="64" y2="94" stroke="white" stroke-width="3" stroke-linecap="round" opacity="0.9" />
+          <line x1="32" y1="62" x2="48" y2="62" stroke="white" stroke-width="3" stroke-linecap="round" opacity="0.9" />
+          <line x1="80" y1="62" x2="96" y2="62" stroke="white" stroke-width="3" stroke-linecap="round" opacity="0.9" />
+        </svg>
+      </div>
+      <h1>Focus Mode Settings</h1>
+    </header>
+
+    <!-- ===== General Settings ===== -->
+    <section class="card" aria-labelledby="general-heading">
+      <h2 id="general-heading">General</h2>
+
+      <fieldset class="setting-group">
+        <legend>Theme</legend>
+        <div class="radio-group" role="radiogroup" aria-label="Theme selection">
+          <label class="radio-label">
+            <input type="radio" name="theme" value="light">
+            <span class="radio-custom"></span>
+            Light
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="theme" value="dark">
+            <span class="radio-custom"></span>
+            Dark
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="theme" value="system">
+            <span class="radio-custom"></span>
+            System
+          </label>
+        </div>
+      </fieldset>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <label for="soundToggle">Ambient sound during sessions</label>
+          <span class="setting-desc">Play calming audio while focusing</span>
+        </div>
+        <label class="toggle" aria-label="Toggle ambient sound">
+          <input type="checkbox" id="soundToggle">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-row sub-setting" id="soundOptions">
+        <div class="setting-info">
+          <label for="soundSelector">Sound type</label>
+        </div>
+        <select id="soundSelector" aria-label="Select ambient sound type">
+          <option value="rain">Rain</option>
+          <option value="whitenoise">White Noise</option>
+          <option value="lofi">Lo-fi</option>
+        </select>
+      </div>
+
+      <div class="setting-row sub-setting" id="volumeRow">
+        <div class="setting-info">
+          <label for="volumeSlider">Volume</label>
+          <span class="setting-desc" id="volumeValue">70%</span>
+        </div>
+        <input type="range" id="volumeSlider" min="0" max="100" value="70" aria-label="Volume level" aria-valuemin="0" aria-valuemax="100">
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <label for="mutingToggle">Mute notifications during sessions</label>
+          <span class="setting-desc">Suppress browser notifications while focusing</span>
+        </div>
+        <label class="toggle" aria-label="Toggle notification muting">
+          <input type="checkbox" id="mutingToggle">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </section>
+
+    <!-- ===== Blocking Schedule ===== -->
+    <section class="card" aria-labelledby="schedule-heading">
+      <h2 id="schedule-heading">Blocking Schedule</h2>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <label for="scheduleToggle">Enable scheduled blocking</label>
+          <span class="setting-desc">Automatically block sites on a recurring schedule</span>
+        </div>
+        <label class="toggle" aria-label="Toggle blocking schedule">
+          <input type="checkbox" id="scheduleToggle">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div id="scheduleOptions">
+        <fieldset class="setting-group">
+          <legend>Active days</legend>
+          <div class="days-group" role="group" aria-label="Select active days">
+            <label class="day-checkbox">
+              <input type="checkbox" name="scheduleDay" value="1">
+              <span class="day-chip">Mon</span>
+            </label>
+            <label class="day-checkbox">
+              <input type="checkbox" name="scheduleDay" value="2">
+              <span class="day-chip">Tue</span>
+            </label>
+            <label class="day-checkbox">
+              <input type="checkbox" name="scheduleDay" value="3">
+              <span class="day-chip">Wed</span>
+            </label>
+            <label class="day-checkbox">
+              <input type="checkbox" name="scheduleDay" value="4">
+              <span class="day-chip">Thu</span>
+            </label>
+            <label class="day-checkbox">
+              <input type="checkbox" name="scheduleDay" value="5">
+              <span class="day-chip">Fri</span>
+            </label>
+            <label class="day-checkbox">
+              <input type="checkbox" name="scheduleDay" value="6">
+              <span class="day-chip">Sat</span>
+            </label>
+            <label class="day-checkbox">
+              <input type="checkbox" name="scheduleDay" value="0">
+              <span class="day-chip">Sun</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <div class="time-row">
+          <div class="time-field">
+            <label for="startTime">Start time</label>
+            <input type="time" id="startTime" value="09:00">
+          </div>
+          <span class="time-separator" aria-hidden="true">to</span>
+          <div class="time-field">
+            <label for="endTime">End time</label>
+            <input type="time" id="endTime" value="17:00">
+          </div>
+        </div>
+
+        <p class="pro-note">
+          <span class="pro-badge" aria-label="Free tier limitation">Free</span>
+          1 schedule included. <a href="#" id="upgradeScheduleLink" class="pro-link">Upgrade to Pro</a> for unlimited schedules.
+        </p>
+      </div>
+    </section>
+
+    <!-- ===== Nuclear Mode ===== -->
+    <section class="card" aria-labelledby="nuclear-heading">
+      <h2 id="nuclear-heading">Nuclear Mode</h2>
+      <p class="section-desc">
+        Lock your blocklist for a set duration. Once activated, blocking <strong>cannot be turned off</strong> until the timer expires. No exceptions.
+      </p>
+
+      <fieldset class="setting-group">
+        <legend>Duration</legend>
+        <div class="duration-grid" role="radiogroup" aria-label="Nuclear mode duration">
+          <label class="duration-option">
+            <input type="radio" name="nuclearDuration" value="15">
+            <span class="duration-chip">15 min</span>
+          </label>
+          <label class="duration-option">
+            <input type="radio" name="nuclearDuration" value="30" checked>
+            <span class="duration-chip">30 min</span>
+          </label>
+          <label class="duration-option">
+            <input type="radio" name="nuclearDuration" value="45">
+            <span class="duration-chip">45 min</span>
+          </label>
+          <label class="duration-option">
+            <input type="radio" name="nuclearDuration" value="60">
+            <span class="duration-chip">1 hr</span>
+          </label>
+          <label class="duration-option locked" aria-disabled="true">
+            <input type="radio" name="nuclearDuration" value="120" disabled>
+            <span class="duration-chip">2 hr <span class="lock-icon" aria-label="Pro only">Pro</span></span>
+          </label>
+          <label class="duration-option locked" aria-disabled="true">
+            <input type="radio" name="nuclearDuration" value="240" disabled>
+            <span class="duration-chip">4 hr <span class="lock-icon" aria-label="Pro only">Pro</span></span>
+          </label>
+          <label class="duration-option locked" aria-disabled="true">
+            <input type="radio" name="nuclearDuration" value="480" disabled>
+            <span class="duration-chip">8 hr <span class="lock-icon" aria-label="Pro only">Pro</span></span>
+          </label>
+          <label class="duration-option locked" aria-disabled="true">
+            <input type="radio" name="nuclearDuration" value="1440" disabled>
+            <span class="duration-chip">24 hr <span class="lock-icon" aria-label="Pro only">Pro</span></span>
+          </label>
+        </div>
+      </fieldset>
+
+      <div class="nuclear-status" id="nuclearStatus" hidden>
+        <div class="nuclear-active-badge">NUCLEAR MODE ACTIVE</div>
+        <p id="nuclearTimeRemaining"></p>
+      </div>
+
+      <button type="button" class="btn btn-danger" id="nuclearActivateBtn">
+        Activate Nuclear Mode
+      </button>
+    </section>
+
+    <!-- ===== About ===== -->
+    <section class="card" aria-labelledby="about-heading">
+      <h2 id="about-heading">About</h2>
+
+      <div class="about-info">
+        <div class="about-row">
+          <span class="about-label">Extension</span>
+          <span class="about-value">Focus Mode - Blocker</span>
+        </div>
+        <div class="about-row">
+          <span class="about-label">Version</span>
+          <span class="about-value" id="extensionVersion">1.0.0</span>
+        </div>
+        <div class="about-row">
+          <span class="about-label">Made by</span>
+          <span class="about-value">
+            <a href="https://zovo.dev" target="_blank" rel="noopener noreferrer" class="about-link">Zovo</a>
+          </span>
+        </div>
+        <div class="about-row">
+          <span class="about-label">Privacy</span>
+          <span class="about-value">All data stays on your device</span>
+        </div>
+      </div>
+
+      <div class="about-actions">
+        <a href="https://chrome.google.com/webstore" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+          Rate Us
+        </a>
+        <a href="mailto:support@zovo.dev" class="btn btn-secondary">
+          Support
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Confirmation Dialog -->
+  <dialog id="confirmDialog" class="confirm-dialog" aria-labelledby="confirmTitle" aria-describedby="confirmDesc">
+    <div class="dialog-content">
+      <h3 id="confirmTitle">Activate Nuclear Mode?</h3>
+      <p id="confirmDesc">
+        This will lock your blocklist for <strong id="confirmDuration">30 minutes</strong>.
+        You will <strong>not</strong> be able to turn it off early. Are you sure?
+      </p>
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-secondary" id="confirmCancel">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmActivate">Activate</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>

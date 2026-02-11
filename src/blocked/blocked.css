@@ -1,0 +1,521 @@
+/* ============================================
+   Focus Mode - Blocker: Block Page Styles
+   ============================================ */
+
+/* --- Reset & Base --- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --color-primary: #6366f1;
+  --color-primary-hover: #4f46e5;
+  --color-primary-bg: rgba(99, 102, 241, 0.08);
+  --color-streak: #f59e0b;
+  --color-streak-bg: rgba(245, 158, 11, 0.1);
+  --color-saved: #10b981;
+  --color-saved-bg: rgba(16, 185, 129, 0.1);
+  --color-blocked: #6366f1;
+  --color-blocked-bg: rgba(99, 102, 241, 0.08);
+  --color-text: #1e293b;
+  --color-text-muted: #64748b;
+  --color-text-subtle: #94a3b8;
+  --color-bg-start: #f8fafc;
+  --color-bg-end: #e0e7ff;
+  --color-card-bg: #ffffff;
+  --color-card-border: rgba(0, 0, 0, 0.06);
+  --color-card-shadow: rgba(0, 0, 0, 0.05);
+  --color-quote-bg: rgba(99, 102, 241, 0.04);
+  --color-quote-border: #c7d2fe;
+  --color-override: #94a3b8;
+  --color-override-hover: #64748b;
+  --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+}
+
+/* --- Dark Mode --- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-primary: #818cf8;
+    --color-primary-hover: #a5b4fc;
+    --color-primary-bg: rgba(129, 140, 248, 0.12);
+    --color-streak: #fbbf24;
+    --color-streak-bg: rgba(251, 191, 36, 0.12);
+    --color-saved: #34d399;
+    --color-saved-bg: rgba(52, 211, 153, 0.12);
+    --color-blocked: #818cf8;
+    --color-blocked-bg: rgba(129, 140, 248, 0.12);
+    --color-text: #f1f5f9;
+    --color-text-muted: #94a3b8;
+    --color-text-subtle: #64748b;
+    --color-bg-start: #0f172a;
+    --color-bg-end: #1e1b4b;
+    --color-card-bg: #1e293b;
+    --color-card-border: rgba(255, 255, 255, 0.08);
+    --color-card-shadow: rgba(0, 0, 0, 0.3);
+    --color-quote-bg: rgba(129, 140, 248, 0.06);
+    --color-quote-border: #4338ca;
+    --color-override: #64748b;
+    --color-override-hover: #94a3b8;
+  }
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-stack);
+  color: var(--color-text);
+  background: linear-gradient(160deg, var(--color-bg-start) 0%, var(--color-bg-end) 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* --- Container --- */
+.container {
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+/* --- Shield Icon --- */
+.shield-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: var(--color-primary-bg);
+  margin-bottom: 4px;
+}
+
+.shield-icon svg {
+  display: block;
+}
+
+/* --- Heading --- */
+.heading {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+/* --- Domain Message --- */
+.domain-message {
+  font-size: 1.125rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  max-width: 420px;
+}
+
+.domain-highlight {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+/* --- Timer Section --- */
+.timer-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-md);
+  padding: 14px 28px;
+  box-shadow: 0 1px 3px var(--color-card-shadow);
+  width: 100%;
+  max-width: 320px;
+}
+
+.timer-icon {
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.timer-display {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.timer-label {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+/* --- Stats Row --- */
+.stats-row {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.stat-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 8px;
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 1px 3px var(--color-card-shadow);
+  transition: transform 0.15s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-1px);
+}
+
+.stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+}
+
+.stat-card--streak .stat-icon {
+  color: var(--color-streak);
+  background: var(--color-streak-bg);
+}
+
+.stat-card--saved .stat-icon {
+  color: var(--color-saved);
+  background: var(--color-saved-bg);
+}
+
+.stat-card--blocked .stat-icon {
+  color: var(--color-blocked);
+  background: var(--color-blocked-bg);
+}
+
+.stat-number {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-number small {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  margin-left: 2px;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* --- Attempt Message --- */
+.attempt-message {
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+}
+
+.attempt-message strong {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+/* --- Quote Block --- */
+.quote-block {
+  width: 100%;
+  background: var(--color-quote-bg);
+  border-left: 3px solid var(--color-quote-border);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 16px 20px;
+  text-align: left;
+}
+
+.quote-block p {
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* --- Actions --- */
+.actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+/* Primary Button */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-stack);
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+  line-height: 1;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  font-size: 1rem;
+  padding: 14px 32px;
+  background-color: var(--color-primary);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-hover);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+}
+
+.btn-primary:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.btn-primary svg {
+  flex-shrink: 0;
+}
+
+/* Override Button */
+.btn-override {
+  display: inline-block;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-stack);
+  font-size: 0.8125rem;
+  color: var(--color-override);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: color 0.15s ease;
+}
+
+.btn-override:hover {
+  color: var(--color-override-hover);
+}
+
+.btn-override:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Confirmation dialog inline */
+.override-confirm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 8px var(--color-card-shadow);
+  max-width: 380px;
+  width: 100%;
+}
+
+.override-confirm p {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.override-confirm-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.override-confirm-actions button {
+  font-family: var(--font-stack);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  border: 1px solid var(--color-card-border);
+  transition: background-color 0.15s ease;
+}
+
+.btn-confirm-cancel {
+  background: var(--color-card-bg);
+  color: var(--color-text-muted);
+}
+
+.btn-confirm-cancel:hover {
+  background: var(--color-bg-start);
+}
+
+.btn-confirm-cancel:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.btn-confirm-yes {
+  background: none;
+  color: var(--color-override);
+  border-color: var(--color-card-border);
+}
+
+.btn-confirm-yes:hover {
+  color: var(--color-override-hover);
+  background: var(--color-bg-start);
+}
+
+.btn-confirm-yes:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* --- Responsive --- */
+@media (max-width: 480px) {
+  body {
+    padding: 20px 12px;
+  }
+
+  .heading {
+    font-size: 1.625rem;
+  }
+
+  .domain-message {
+    font-size: 1rem;
+  }
+
+  .stats-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .stat-card {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+
+  .stat-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .stat-number {
+    font-size: 1.25rem;
+  }
+
+  .stat-label {
+    margin-left: auto;
+  }
+
+  .timer-display {
+    font-size: 1.5rem;
+  }
+
+  .timer-section {
+    padding: 12px 20px;
+  }
+
+  .quote-block {
+    padding: 12px 16px;
+  }
+
+  .btn-primary {
+    width: 100%;
+  }
+}
+
+/* --- Reduced Motion --- */
+@media (prefers-reduced-motion: reduce) {
+  .stat-card {
+    transition: none;
+  }
+
+  .btn,
+  .btn-override,
+  .override-confirm-actions button {
+    transition: none;
+  }
+
+  .btn:active {
+    transform: none;
+  }
+}
+
+/* --- High Contrast --- */
+@media (forced-colors: active) {
+  .stat-card,
+  .timer-section,
+  .quote-block,
+  .override-confirm {
+    border: 2px solid CanvasText;
+  }
+
+  .btn-primary {
+    border: 2px solid ButtonText;
+  }
+
+  .btn-override {
+    text-decoration: underline;
+    color: LinkText;
+  }
+
+  .shield-icon {
+    background: none;
+  }
+
+  .stat-icon {
+    background: none;
+  }
+}
+
+/* --- Hidden utility --- */
+[hidden] {
+  display: none !important;
+}

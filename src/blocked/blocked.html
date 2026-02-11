@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stay Focused - Focus Mode</title>
+  <link rel="stylesheet" href="blocked.css">
+</head>
+<body>
+  <main class="container" role="main">
+    <!-- Shield Icon -->
+    <div class="shield-icon" aria-hidden="true">
+      <svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M36 4L8 16V33C8 50.67 20.08 67.16 36 72C51.92 67.16 64 50.67 64 33V16L36 4Z" fill="#6366f1" fill-opacity="0.12" stroke="#6366f1" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M26 36L33 43L47 29" stroke="#6366f1" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <!-- Heading -->
+    <h1 class="heading">Stay Focused</h1>
+
+    <!-- Domain Message -->
+    <p class="domain-message">
+      <span id="domain-name" class="domain-highlight">this site</span> is blocked during your focus session
+    </p>
+
+    <!-- Timer Section (hidden when no active session) -->
+    <section id="timer-section" class="timer-section" aria-label="Session timer" hidden>
+      <div class="timer-icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="10" cy="11" r="8" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M10 7V11L13 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8 1H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span id="timer-display" class="timer-display" aria-live="polite">--:--</span>
+      <span class="timer-label">remaining</span>
+    </section>
+
+    <!-- Stats Cards -->
+    <section class="stats-row" aria-label="Focus statistics">
+      <div class="stat-card stat-card--streak">
+        <span class="stat-icon" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C6.5 8 3 12 3 15C3 19 7 22 12 22C17 22 21 19 21 15C21 12 17.5 8 12 2Z" fill="currentColor" fill-opacity="0.15"/>
+            <path d="M12 2C6.5 8 3 12 3 15C3 19 7 22 12 22C17 22 21 19 21 15C21 12 17.5 8 12 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span id="streak-count" class="stat-number">0</span>
+        <span class="stat-label">Day Streak</span>
+      </div>
+
+      <div class="stat-card stat-card--saved">
+        <span class="stat-icon" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M12 7V12L15 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span id="saved-time" class="stat-number">0<small>min</small></span>
+        <span class="stat-label">Focused</span>
+      </div>
+
+      <div class="stat-card stat-card--blocked">
+        <span class="stat-icon" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M5.5 5.5L18.5 18.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span id="blocked-count" class="stat-number">0</span>
+        <span class="stat-label">Blocked Today</span>
+      </div>
+    </section>
+
+    <!-- Attempt Message -->
+    <p id="attempt-message" class="attempt-message" hidden>
+      This is attempt <strong id="attempt-count">#1</strong> to visit <span id="attempt-domain">this site</span> today
+    </p>
+
+    <!-- Motivational Quote -->
+    <blockquote id="quote-block" class="quote-block" aria-label="Motivational quote">
+      <p id="quote-text"></p>
+    </blockquote>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button id="return-btn" class="btn btn-primary" type="button">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M15 9H3M3 9L8 4M3 9L8 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Return to Work
+      </button>
+
+      <button id="override-btn" class="btn-override" type="button" hidden>
+        Continue to site anyway
+      </button>
+    </div>
+  </main>
+
+  <script type="module" src="blocked.js"></script>
+</body>
+</html>

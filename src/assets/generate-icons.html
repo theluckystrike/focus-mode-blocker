@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Focus Mode - Icon Generator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 48px 24px;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      color: #94a3b8;
+      margin-bottom: 40px;
+      font-size: 14px;
+    }
+    .icons-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 40px;
+      justify-content: center;
+      align-items: flex-end;
+    }
+    .icon-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .icon-item canvas {
+      border: 1px solid #334155;
+      border-radius: 8px;
+      background: #1e293b;
+      image-rendering: pixelated;
+    }
+    .icon-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #cbd5e1;
+    }
+    .icon-hint {
+      font-size: 11px;
+      color: #64748b;
+    }
+    .icon-filename {
+      font-size: 11px;
+      color: #6366f1;
+      font-family: monospace;
+    }
+    .instructions {
+      margin-top: 40px;
+      padding: 20px 28px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      max-width: 480px;
+      text-align: center;
+    }
+    .instructions p {
+      font-size: 13px;
+      color: #94a3b8;
+      line-height: 1.6;
+    }
+    .instructions strong {
+      color: #e2e8f0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Focus Mode - Icon Generator</h1>
+  <p class="subtitle">Shield + Crosshair icon at all required sizes</p>
+
+  <div class="icons-grid" id="iconsGrid"></div>
+
+  <div class="instructions">
+    <p><strong>Right-click</strong> each icon and choose <strong>"Save image as..."</strong></p>
+    <p>Save them to <code>src/assets/icons/</code> with the filenames shown below each icon.</p>
+  </div>
+
+  <!-- Hidden SVG used as the source -->
+  <svg id="iconSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" style="display:none;">
+    <defs>
+      <linearGradient id="shieldGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#6366f1" />
+        <stop offset="100%" stop-color="#06b6d4" />
+      </linearGradient>
+      <!-- Subtle inner shadow for depth -->
+      <linearGradient id="shieldHighlight" x1="0.5" y1="0" x2="0.5" y2="1">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.18" />
+        <stop offset="60%" stop-color="#ffffff" stop-opacity="0" />
+      </linearGradient>
+    </defs>
+
+    <!-- Shield shape -->
+    <path d="
+      M 64 8
+      C 64 8, 20 22, 20 22
+      L 20 58
+      C 20 88, 40 108, 64 120
+      C 88 108, 108 88, 108 58
+      L 108 22
+      C 108 22, 64 8, 64 8
+      Z
+    " fill="url(#shieldGrad)" />
+
+    <!-- Highlight overlay -->
+    <path d="
+      M 64 8
+      C 64 8, 20 22, 20 22
+      L 20 58
+      C 20 88, 40 108, 64 120
+      C 88 108, 108 88, 108 58
+      L 108 22
+      C 108 22, 64 8, 64 8
+      Z
+    " fill="url(#shieldHighlight)" />
+
+    <!-- Crosshair / target circles -->
+    <!-- Outer ring -->
+    <circle cx="64" cy="62" r="26" fill="none" stroke="white" stroke-width="3.5" opacity="0.9" />
+    <!-- Inner ring -->
+    <circle cx="64" cy="62" r="13" fill="none" stroke="white" stroke-width="3" opacity="0.9" />
+    <!-- Center dot -->
+    <circle cx="64" cy="62" r="4" fill="white" opacity="0.95" />
+
+    <!-- Crosshair lines -->
+    <line x1="64" y1="30" x2="64" y2="46" stroke="white" stroke-width="3" stroke-linecap="round" opacity="0.9" />
+    <line x1="64" y1="78" x2="64" y2="94" stroke="white" stroke-width="3" stroke-linecap="round" opacity="0.9" />
+    <line x1="32" y1="62" x2="48" y2="62" stroke="white" stroke-width="3" stroke-linecap="round" opacity="0.9" />
+    <line x1="80" y1="62" x2="96" y2="62" stroke="white" stroke-width="3" stroke-linecap="round" opacity="0.9" />
+  </svg>
+
+  <script>
+    const sizes = [16, 32, 48, 128];
+    const grid = document.getElementById('iconsGrid');
+    const svgEl = document.getElementById('iconSvg');
+
+    // Serialize the SVG to a data URL
+    const serializer = new XMLSerializer();
+    const svgString = serializer.serializeToString(svgEl);
+    const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const svgUrl = URL.createObjectURL(svgBlob);
+
+    const img = new Image();
+    img.onload = () => {
+      for (const size of sizes) {
+        const item = document.createElement('div');
+        item.className = 'icon-item';
+
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+
+        // For display, scale up small icons so they're visible
+        const displaySize = Math.max(size, 64);
+        canvas.style.width = displaySize + 'px';
+        canvas.style.height = displaySize + 'px';
+
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, size, size);
+        ctx.drawImage(img, 0, 0, size, size);
+
+        const label = document.createElement('span');
+        label.className = 'icon-label';
+        label.textContent = `${size} x ${size}`;
+
+        const filename = document.createElement('span');
+        filename.className = 'icon-filename';
+        filename.textContent = `icon-${size}.png`;
+
+        const hint = document.createElement('span');
+        hint.className = 'icon-hint';
+        hint.textContent = 'Right-click to save';
+
+        item.appendChild(canvas);
+        item.appendChild(label);
+        item.appendChild(filename);
+        item.appendChild(hint);
+        grid.appendChild(item);
+      }
+
+      URL.revokeObjectURL(svgUrl);
+    };
+    img.src = svgUrl;
+  </script>
+</body>
+</html>
