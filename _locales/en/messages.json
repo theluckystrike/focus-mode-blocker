@@ -1,0 +1,387 @@
+{
+  "extName": {
+    "message": "Focus Mode - Blocker",
+    "description": "The name of the extension displayed in the browser and store"
+  },
+  "extDescription": {
+    "message": "Block distractions. Build focus. Track your streak.",
+    "description": "The description shown in the Chrome Web Store listing"
+  },
+
+  "headerTitle": {
+    "message": "Focus Mode",
+    "description": "Main header title in the popup"
+  },
+  "settingsTooltip": {
+    "message": "Settings",
+    "description": "Tooltip for the settings gear icon button"
+  },
+
+  "tabHome": {
+    "message": "Home",
+    "description": "Home tab label in popup navigation"
+  },
+  "tabBlocklist": {
+    "message": "Blocklist",
+    "description": "Blocklist tab label in popup navigation"
+  },
+  "tabStats": {
+    "message": "Stats",
+    "description": "Stats tab label in popup navigation"
+  },
+
+  "onboardingWelcome": {
+    "message": "Welcome! Add sites to block, then start your first focus session.",
+    "description": "Welcome message for first-time users"
+  },
+  "quickFocus": {
+    "message": "Quick Focus",
+    "description": "Label for the main focus session start button"
+  },
+  "customDuration": {
+    "message": "Custom",
+    "description": "Label for custom duration button (Pro feature)"
+  },
+  "todayHeading": {
+    "message": "Today",
+    "description": "Heading for today's stats card on the home tab"
+  },
+  "labelFocusTime": {
+    "message": "Focus time",
+    "description": "Label for focus time stat"
+  },
+  "labelBlocks": {
+    "message": "Blocks",
+    "description": "Label for blocks count stat"
+  },
+  "labelAttempts": {
+    "message": "Attempts",
+    "description": "Label for distraction attempts stat"
+  },
+  "labelFocusScore": {
+    "message": "Focus Score",
+    "description": "Label for the focus score ring"
+  },
+  "labelDayStreak": {
+    "message": "Day streak",
+    "description": "Label for the daily streak counter"
+  },
+
+  "statusFocusing": {
+    "message": "Focusing",
+    "description": "Status text displayed during an active focus session"
+  },
+  "statusShortBreak": {
+    "message": "Short Break",
+    "description": "Status text displayed during a short break"
+  },
+  "statusLongBreak": {
+    "message": "Long Break",
+    "description": "Status text displayed during a long break"
+  },
+  "stopSession": {
+    "message": "Stop Session",
+    "description": "Button label to stop the current focus session"
+  },
+  "sitesBlocked": {
+    "message": "sites blocked",
+    "description": "Label next to the blocked sites count during a session"
+  },
+
+  "sessionComplete": {
+    "message": "Session Complete!",
+    "description": "Title shown after a focus session ends"
+  },
+  "labelDuration": {
+    "message": "Duration",
+    "description": "Label for session duration in the post-session summary"
+  },
+  "labelBlocked": {
+    "message": "Blocked",
+    "description": "Label for blocked count in the post-session summary"
+  },
+  "labelScore": {
+    "message": "Score",
+    "description": "Label for score earned in the post-session summary"
+  },
+  "startAnother": {
+    "message": "Start Another",
+    "description": "Button label to start another focus session"
+  },
+  "takeABreak": {
+    "message": "Take a Break",
+    "description": "Button label to take a break after a session"
+  },
+
+  "placeholderAddSite": {
+    "message": "e.g. twitter.com",
+    "description": "Placeholder text for the add-site input field"
+  },
+  "buttonAdd": {
+    "message": "Add",
+    "description": "Button label to add a site to the blocklist"
+  },
+  "sitesUsed": {
+    "message": "sites used",
+    "description": "Label after the site count numbers"
+  },
+  "headingYourSites": {
+    "message": "Your sites",
+    "description": "Heading for the manually added sites section"
+  },
+  "emptyBlocklist": {
+    "message": "No sites blocked yet. Add distracting websites above to block them during focus sessions.",
+    "description": "Empty state message when the blocklist is empty"
+  },
+  "headingPrebuiltLists": {
+    "message": "Pre-built lists",
+    "description": "Heading for the pre-built blocklist section"
+  },
+  "prebuiltSocialMedia": {
+    "message": "Social Media",
+    "description": "Name of the Social Media pre-built blocklist"
+  },
+  "prebuiltNews": {
+    "message": "News",
+    "description": "Name of the News pre-built blocklist"
+  },
+  "prebuiltEntertainment": {
+    "message": "Entertainment",
+    "description": "Name of the Entertainment pre-built blocklist"
+  },
+  "prebuiltGaming": {
+    "message": "Gaming",
+    "description": "Name of the Gaming pre-built blocklist"
+  },
+  "prebuiltShopping": {
+    "message": "Shopping",
+    "description": "Name of the Shopping pre-built blocklist"
+  },
+
+  "labelFocusToday": {
+    "message": "Focus today",
+    "description": "Label for focus time in the stats tab"
+  },
+  "labelDistractions": {
+    "message": "Distractions",
+    "description": "Label for distraction count in the stats tab"
+  },
+  "headingTopDistractions": {
+    "message": "Top distractions",
+    "description": "Heading for the top distraction sites list"
+  },
+  "noDistractions": {
+    "message": "No distractions recorded today.",
+    "description": "Empty state message when no distractions have been recorded"
+  },
+  "labelCurrentStreak": {
+    "message": "Current streak",
+    "description": "Label for current streak in the stats tab"
+  },
+  "labelBestStreak": {
+    "message": "Best streak",
+    "description": "Label for best streak in the stats tab"
+  },
+  "statsEmptyMsg": {
+    "message": "Start your first session today!",
+    "description": "Motivational message shown in stats when no sessions completed"
+  },
+  "unlockWeeklyReports": {
+    "message": "Unlock Weekly Reports",
+    "description": "Call-to-action text for weekly reports (Pro feature)"
+  },
+  "upgradeToPro": {
+    "message": "Upgrade to Pro",
+    "description": "Text encouraging upgrade to Pro"
+  },
+
+  "blockedHeading": {
+    "message": "Stay Focused",
+    "description": "Main heading on the blocked page"
+  },
+  "blockedDomainSuffix": {
+    "message": "is blocked during your focus session",
+    "description": "Text after the domain name on the blocked page"
+  },
+  "timerRemaining": {
+    "message": "remaining",
+    "description": "Label after the timer on the blocked page"
+  },
+  "blockedDayStreak": {
+    "message": "Day Streak",
+    "description": "Label for day streak stat on the blocked page"
+  },
+  "blockedFocused": {
+    "message": "Focused",
+    "description": "Label for focused time stat on the blocked page"
+  },
+  "blockedBlockedToday": {
+    "message": "Blocked Today",
+    "description": "Label for blocked count stat on the blocked page"
+  },
+  "returnToWork": {
+    "message": "Return to Work",
+    "description": "Button label to go back from the blocked page"
+  },
+  "overrideButton": {
+    "message": "Continue to site anyway",
+    "description": "Override button label on the blocked page"
+  },
+  "overrideConfirmMsg": {
+    "message": "Are you sure? This will be recorded and may affect your Focus Score.",
+    "description": "Confirmation message when overriding a block"
+  },
+  "overrideCancel": {
+    "message": "Cancel",
+    "description": "Cancel button in the override confirmation dialog"
+  },
+  "overrideContinue": {
+    "message": "Continue to site",
+    "description": "Confirm button in the override confirmation dialog"
+  },
+  "nuclearBannerText": {
+    "message": "NUCLEAR MODE ACTIVE \u2014 Cannot bypass",
+    "description": "Banner text shown on the block page during nuclear mode"
+  },
+
+  "optionsHeading": {
+    "message": "Focus Mode Settings",
+    "description": "Main heading on the options page"
+  },
+  "headingGeneral": {
+    "message": "General",
+    "description": "General settings section heading"
+  },
+  "legendTheme": {
+    "message": "Theme",
+    "description": "Theme selection fieldset legend"
+  },
+  "themeLight": {
+    "message": "Light",
+    "description": "Light theme option label"
+  },
+  "themeDark": {
+    "message": "Dark",
+    "description": "Dark theme option label"
+  },
+  "themeSystem": {
+    "message": "System",
+    "description": "System theme option label"
+  },
+  "labelAmbientSound": {
+    "message": "Ambient sound during sessions",
+    "description": "Toggle label for ambient sound setting"
+  },
+  "descAmbientSound": {
+    "message": "Play calming audio while focusing",
+    "description": "Description for ambient sound toggle"
+  },
+  "labelSoundType": {
+    "message": "Sound type",
+    "description": "Label for sound type selector"
+  },
+  "labelVolume": {
+    "message": "Volume",
+    "description": "Label for volume slider"
+  },
+  "labelMuteNotifications": {
+    "message": "Mute notifications during sessions",
+    "description": "Toggle label for notification muting"
+  },
+  "descMuteNotifications": {
+    "message": "Suppress browser notifications while focusing",
+    "description": "Description for notification muting toggle"
+  },
+  "headingSchedule": {
+    "message": "Blocking Schedule",
+    "description": "Blocking schedule section heading"
+  },
+  "labelEnableSchedule": {
+    "message": "Enable scheduled blocking",
+    "description": "Toggle label for the blocking schedule"
+  },
+  "descEnableSchedule": {
+    "message": "Automatically block sites on a recurring schedule",
+    "description": "Description for the blocking schedule toggle"
+  },
+  "legendActiveDays": {
+    "message": "Active days",
+    "description": "Legend for the active days fieldset"
+  },
+  "labelStartTime": {
+    "message": "Start time",
+    "description": "Label for schedule start time input"
+  },
+  "labelEndTime": {
+    "message": "End time",
+    "description": "Label for schedule end time input"
+  },
+  "headingNuclear": {
+    "message": "Nuclear Mode",
+    "description": "Nuclear mode section heading"
+  },
+  "descNuclear": {
+    "message": "Lock your blocklist for a set duration. Once activated, blocking cannot be turned off until the timer expires. No exceptions.",
+    "description": "Description of nuclear mode"
+  },
+  "legendNuclearDuration": {
+    "message": "Duration",
+    "description": "Legend for nuclear mode duration selection"
+  },
+  "nuclearActive": {
+    "message": "NUCLEAR MODE ACTIVE",
+    "description": "Badge text when nuclear mode is active"
+  },
+  "activateNuclearMode": {
+    "message": "Activate Nuclear Mode",
+    "description": "Button label to activate nuclear mode"
+  },
+  "nuclearModeActive": {
+    "message": "Nuclear Mode Active",
+    "description": "Button label shown when nuclear mode is already active"
+  },
+  "headingAbout": {
+    "message": "About",
+    "description": "About section heading on options page"
+  },
+  "aboutExtension": {
+    "message": "Extension",
+    "description": "Label for extension name in the about section"
+  },
+  "aboutVersion": {
+    "message": "Version",
+    "description": "Label for version in the about section"
+  },
+  "aboutMadeBy": {
+    "message": "Made by",
+    "description": "Label for creator in the about section"
+  },
+  "aboutPrivacy": {
+    "message": "Privacy",
+    "description": "Label for privacy info in the about section"
+  },
+  "aboutPrivacyValue": {
+    "message": "All data stays on your device",
+    "description": "Privacy statement in the about section"
+  },
+  "buttonRateUs": {
+    "message": "Rate Us",
+    "description": "Button label to rate the extension"
+  },
+  "buttonSupport": {
+    "message": "Support",
+    "description": "Button label to contact support"
+  },
+  "dialogNuclearTitle": {
+    "message": "Activate Nuclear Mode?",
+    "description": "Title of the nuclear mode confirmation dialog"
+  },
+  "dialogNuclearCancel": {
+    "message": "Cancel",
+    "description": "Cancel button in the nuclear mode confirmation dialog"
+  },
+  "dialogNuclearActivate": {
+    "message": "Activate",
+    "description": "Activate button in the nuclear mode confirmation dialog"
+  }
+}

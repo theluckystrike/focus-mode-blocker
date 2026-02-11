@@ -12,6 +12,9 @@ import {
   getFullBlocklist
 } from '../shared/storage.js';
 
+import { logError } from '../shared/error-logger.js';
+import { isPro, getProLimits } from '../shared/pro.js';
+
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
@@ -19,6 +22,7 @@ import {
 const ALARM_TICK = 'focus-tick';
 const ALARM_SCHEDULE_CHECK = 'schedule-check';
 const ALARM_NUCLEAR_END = 'nuclear-end';
+const ALARM_WEEKLY_SUMMARY = 'weekly-summary';
 
 const DEFAULTS_TIMER = {
   focusDuration: 25,
@@ -43,6 +47,9 @@ const DOMAIN_REGEX = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-
 
 // Allowed prebuilt list IDs
 const ALLOWED_PREBUILT_LIST_IDS = ['social-media', 'news', 'entertainment', 'gaming', 'shopping'];
+
+// Milestone session counts for celebration notifications
+const SESSION_MILESTONES = [10, 25, 50, 100];
 
 /**
  * Sanitize and validate a domain string.
@@ -304,11 +311,16 @@ async function onAlarmTick() {
 async function onFocusComplete(timerState) {
   const stats = await getTodayStats();
 
-  await recordSession({
+  const sessionResult = await recordSession({
     duration: timerState.duration,
     focusMinutes: Math.floor(timerState.duration / 60),
     completed: true
   });
+
+  // Check for milestone celebrations
+  if (sessionResult && sessionResult.newSessionCount) {
+    await checkMilestoneCelebration(sessionResult.newSessionCount);
+  }
 
   const distractions = stats.totalAttempts;
   const durationMin = Math.floor(timerState.duration / 60);
@@ -376,6 +388,22 @@ async function onBreakComplete(timerState) {
 }
 
 // ---------------------------------------------------------------------------
+// Usage Milestone Celebrations
+// ---------------------------------------------------------------------------
+
+async function checkMilestoneCelebration(newSessionCount) {
+  if (SESSION_MILESTONES.includes(newSessionCount)) {
+    await chrome.notifications.create('milestone-' + newSessionCount, {
+      type: 'basic',
+      iconUrl: chrome.runtime.getURL('src/assets/icons/icon-128.png'),
+      title: 'Milestone Reached!',
+      message: `You've completed ${newSessionCount} focus sessions! Keep up the great work.`,
+      priority: 2
+    });
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Badge Updates
 // ---------------------------------------------------------------------------
 
@@ -414,7 +442,12 @@ async function clearBadge() {
 
 async function activateNuclear(durationMinutes) {
   try {
-    const endsAt = Date.now() + durationMinutes * 60 * 1000;
+    // Cap nuclear duration based on Pro status
+    const proStatus = await isPro();
+    const limits = getProLimits(proStatus);
+    const cappedDuration = Math.min(durationMinutes, limits.nuclearMaxMinutes);
+
+    const endsAt = Date.now() + cappedDuration * 60 * 1000;
 
     const { settings } = await getStorage('settings');
     settings.nuclearMode = { active: true, endsAt: endsAt };
@@ -426,7 +459,7 @@ async function activateNuclear(durationMinutes) {
 
     await updateBadge('nuclear');
 
-    const alarmTime = durationMinutes;
+    const alarmTime = cappedDuration;
     await chrome.alarms.create(ALARM_NUCLEAR_END, { delayInMinutes: alarmTime });
   } catch (err) {
     console.error('[SW] activateNuclear failed:', err);
@@ -526,6 +559,7 @@ async function checkSchedule() {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   handleMessage(message, sender).then(sendResponse).catch(err => {
     console.error('Message handler error:', err);
+    logError('service-worker', err, { handler: 'onMessage', type: message?.type });
     sendResponse({ error: err.message });
   });
   return true;
@@ -570,6 +604,15 @@ async function handleMessage(message, sender) {
       const nucDur = Number(message.duration);
       if (!Number.isFinite(nucDur) || nucDur <= 0 || nucDur > 1440) {
         return { error: 'Invalid nuclear duration. Must be 1-1440 minutes.' };
+      }
+      // Check Pro limit on nuclear duration
+      const nucProStatus = await isPro();
+      const nucLimits = getProLimits(nucProStatus);
+      if (nucDur > nucLimits.nuclearMaxMinutes) {
+        return {
+          error: `Free plan allows up to ${nucLimits.nuclearMaxMinutes} minutes. Upgrade to Pro for longer durations.`,
+          limitReached: true
+        };
       }
       await activateNuclear(nucDur);
       return { success: true };
@@ -630,6 +673,13 @@ async function handleMessage(message, sender) {
       return await handleUpdateSchedule(message.schedule);
     }
 
+    case 'LOG_ERROR': {
+      const src = typeof message.source === 'string' ? message.source : 'unknown';
+      const msg = typeof message.error === 'string' ? message.error : 'Unknown error';
+      await logError(src, msg, message.context || null);
+      return { success: true };
+    }
+
     default:
       return { error: 'Unknown message type.' };
   }
@@ -652,6 +702,8 @@ async function getFullState() {
   }
 
   const nuclearActive = await isNuclearActive();
+  const proStatus = await isPro();
+  const proLimits = getProLimits(proStatus);
 
   return {
     timerState: adjustedTimer,
@@ -662,7 +714,9 @@ async function getFullState() {
     activePrebuiltLists,
     sessionCount,
     onboardingComplete,
-    nuclearActive
+    nuclearActive,
+    isPro: proStatus,
+    proLimits
   };
 }
 
@@ -677,8 +731,14 @@ async function handleUpdateBlocklist(sites) {
     return { error: 'Invalid blocklist format. Expected an array.' };
   }
 
-  // Enforce size limit
-  if (sites.length > MAX_BLOCKLIST_SIZE) {
+  // Enforce size limit based on Pro status
+  const proStatus = await isPro();
+  const limits = getProLimits(proStatus);
+  const effectiveMax = Math.min(limits.maxSites, MAX_BLOCKLIST_SIZE);
+  if (sites.length > effectiveMax) {
+    if (!proStatus) {
+      return { error: `Free plan allows up to ${limits.maxSites} sites. Upgrade to Pro for unlimited.`, limitReached: true };
+    }
     return { error: `Blocklist cannot exceed ${MAX_BLOCKLIST_SIZE} sites.` };
   }
 
@@ -717,8 +777,20 @@ async function handleTogglePrebuiltList(listId) {
   let updated;
 
   if (activePrebuiltLists.includes(listId)) {
+    // Always allow disabling a list
     updated = activePrebuiltLists.filter(id => id !== listId);
   } else {
+    // Enforce prebuilt list limit when enabling
+    const proStatus = await isPro();
+    const limits = getProLimits(proStatus);
+    if (activePrebuiltLists.length >= limits.maxPrebuiltLists) {
+      return {
+        error: proStatus
+          ? 'Maximum prebuilt lists reached.'
+          : `Free plan allows ${limits.maxPrebuiltLists} prebuilt lists. Upgrade to Pro for unlimited.`,
+        limitReached: !proStatus
+      };
+    }
     updated = [...activePrebuiltLists, listId];
   }
 
@@ -866,6 +938,80 @@ async function onOverrideExpiry(domain) {
 }
 
 // ---------------------------------------------------------------------------
+// Churn Prevention: Streak Protection & Inactivity Re-engagement
+// ---------------------------------------------------------------------------
+
+async function checkChurnPrevention() {
+  const today = new Date().toISOString().split('T')[0];
+  const now = new Date();
+
+  const { streak, todayStats, lastStreakReminder, lastReengagementNotice } = await getStorage([
+    'streak', 'todayStats', 'lastStreakReminder', 'lastReengagementNotice'
+  ]);
+
+  // --- Streak Protection Notification ---
+  // If streak >= 3, no completed session today, and it's after 6pm, remind once per day
+  if (streak.current >= 3 && now.getHours() >= 18) {
+    const hasSessionToday = todayStats.date === today && todayStats.sessionsCompleted > 0;
+    if (!hasSessionToday && lastStreakReminder !== today) {
+      await chrome.notifications.create('streak-protection', {
+        type: 'basic',
+        iconUrl: chrome.runtime.getURL('src/assets/icons/icon-128.png'),
+        title: 'Don\'t lose your streak!',
+        message: `You have a ${streak.current}-day focus streak. Start a session today to keep it going!`,
+        priority: 2
+      });
+      await setStorage({ lastStreakReminder: today });
+    }
+  }
+
+  // --- Inactivity Re-engagement Notification ---
+  // If lastActiveDate is more than 3 days ago, send a gentle nudge once per day
+  if (streak.lastActiveDate) {
+    const lastActive = new Date(streak.lastActiveDate);
+    const diffDays = Math.floor((now - lastActive) / (1000 * 60 * 60 * 24));
+    if (diffDays > 3 && lastReengagementNotice !== today) {
+      await chrome.notifications.create('reengagement', {
+        type: 'basic',
+        iconUrl: chrome.runtime.getURL('src/assets/icons/icon-128.png'),
+        title: 'We miss you!',
+        message: 'Your focus streak is waiting! Start a quick session to get back on track.',
+        priority: 1
+      });
+      await setStorage({ lastReengagementNotice: today });
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Weekly Summary Notification
+// ---------------------------------------------------------------------------
+
+async function onWeeklySummary() {
+  const { sessionHistory } = await getStorage('sessionHistory');
+  const now = new Date();
+  const oneWeekAgo = new Date(now);
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+  const weekSessions = sessionHistory.filter(s => new Date(s.date) >= oneWeekAgo);
+
+  const totalSessions = weekSessions.filter(s => s.completed).length;
+  const totalMinutes = weekSessions
+    .filter(s => s.completed)
+    .reduce((sum, s) => sum + (s.focusMinutes || 0), 0);
+  const totalDistractions = weekSessions
+    .reduce((sum, s) => sum + (s.attemptsBlocked || 0), 0);
+
+  await chrome.notifications.create('weekly-summary', {
+    type: 'basic',
+    iconUrl: chrome.runtime.getURL('src/assets/icons/icon-128.png'),
+    title: 'Your Weekly Focus Summary',
+    message: `This week: ${totalSessions} focus sessions, ${totalMinutes} minutes focused, ${totalDistractions} distractions blocked.`,
+    priority: 1
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Alarm Listener
 // ---------------------------------------------------------------------------
 
@@ -877,9 +1023,13 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
         break;
       case alarm.name === ALARM_SCHEDULE_CHECK:
         await checkSchedule();
+        await checkChurnPrevention();
         break;
       case alarm.name === ALARM_NUCLEAR_END:
         await onNuclearEnd();
+        break;
+      case alarm.name === ALARM_WEEKLY_SUMMARY:
+        await onWeeklySummary();
         break;
       case alarm.name.startsWith('override-'):
         await onOverrideExpiry(alarm.name.replace('override-', ''));
@@ -887,6 +1037,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
     }
   } catch (err) {
     console.error('[SW] Alarm handler error for', alarm.name, ':', err);
+    logError('service-worker', err, { handler: 'onAlarm', alarm: alarm.name });
   }
 });
 
@@ -896,6 +1047,8 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 
 chrome.runtime.onInstalled.addListener(async (details) => {
   if (details.reason === 'install') {
+    chrome.runtime.setUninstallURL('https://zovo.dev/feedback?ext=focus-blocker&v=1.0.0');
+
     await setStorage({
       blocklist: [],
       activePrebuiltLists: [],
@@ -926,16 +1079,20 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     });
 
     await ensureAlarm(ALARM_SCHEDULE_CHECK, { periodInMinutes: 1 });
+    // Weekly summary alarm: fires every 7 days (10080 minutes)
+    await ensureAlarm(ALARM_WEEKLY_SUMMARY, { delayInMinutes: 10080, periodInMinutes: 10080 });
   }
 
   if (details.reason === 'update') {
     await ensureAlarm(ALARM_SCHEDULE_CHECK, { periodInMinutes: 1 });
+    await ensureAlarm(ALARM_WEEKLY_SUMMARY, { delayInMinutes: 10080, periodInMinutes: 10080 });
     await restoreState();
   }
 });
 
 chrome.runtime.onStartup.addListener(async () => {
   await ensureAlarm(ALARM_SCHEDULE_CHECK, { periodInMinutes: 1 });
+  await ensureAlarm(ALARM_WEEKLY_SUMMARY, { delayInMinutes: 10080, periodInMinutes: 10080 });
   await restoreState();
 });
 
@@ -990,6 +1147,7 @@ async function restoreState() {
     }
   } catch (err) {
     console.error('[SW] restoreState failed:', err);
+    logError('service-worker', err, { handler: 'restoreState' });
   }
 }
 
@@ -1019,5 +1177,26 @@ chrome.commands.onCommand.addListener(async (command) => {
     }
   } catch (err) {
     console.error('[SW] Command handler error for', command, ':', err);
+    logError('service-worker', err, { handler: 'onCommand', command });
   }
+});
+
+// ---------------------------------------------------------------------------
+// Global Error Handlers
+// ---------------------------------------------------------------------------
+
+self.addEventListener('error', (event) => {
+  logError('service-worker', event.error || event.message, {
+    handler: 'globalError',
+    filename: event.filename,
+    lineno: event.lineno,
+    colno: event.colno,
+  });
+});
+
+self.addEventListener('unhandledrejection', (event) => {
+  const reason = event.reason;
+  logError('service-worker', reason instanceof Error ? reason : String(reason), {
+    handler: 'unhandledRejection',
+  });
 });

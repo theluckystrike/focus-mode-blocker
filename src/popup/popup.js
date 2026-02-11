@@ -10,7 +10,8 @@
 // Constants
 // ---------------------------------------------------------------------------
 
-const FREE_SITE_LIMIT = 5;
+const DEFAULT_FREE_SITE_LIMIT = 10;
+const DEFAULT_FREE_PREBUILT_LIMIT = 2;
 const TIMER_POLL_INTERVAL_MS = 1000;
 const SCORE_COLORS = {
   red:    { max: 40, color: '#EF4444' },
@@ -357,6 +358,11 @@ function renderIdleState(els, state) {
 
   // Streak
   els.streakCount.textContent = String(streak.current || 0);
+
+  // Auto-focus the Quick Focus button for keyboard users
+  if (els.btnQuickFocus && !els.btnQuickFocus.disabled) {
+    els.btnQuickFocus.focus();
+  }
 }
 
 /**
@@ -453,23 +459,24 @@ function renderPostState(els, state, completedSession) {
 function renderBlocklistTab(els, state) {
   const blocklist = state.blocklist || [];
   const activePrebuiltLists = state.activePrebuiltLists || [];
-  const isPro = state.isPro || false;
-  const limit = isPro ? Infinity : FREE_SITE_LIMIT;
+  const proStatus = state.isPro || false;
+  const siteLimit = proStatus ? Infinity : ((state.proLimits && state.proLimits.maxSites) || DEFAULT_FREE_SITE_LIMIT);
+  const prebuiltLimit = proStatus ? Infinity : ((state.proLimits && state.proLimits.maxPrebuiltLists) || DEFAULT_FREE_PREBUILT_LIMIT);
 
   // Site count
   els.siteCountUsed.textContent = String(blocklist.length);
-  els.siteCountTotal.textContent = isPro ? 'unlimited' : String(FREE_SITE_LIMIT);
-  const fillPct = isPro ? 0 : Math.min(100, (blocklist.length / FREE_SITE_LIMIT) * 100);
+  els.siteCountTotal.textContent = proStatus ? 'unlimited' : String(siteLimit);
+  const fillPct = proStatus ? 0 : Math.min(100, (blocklist.length / siteLimit) * 100);
   els.siteCountFill.style.width = `${fillPct}%`;
 
   // Apply warning/full classes to the site-count container for color changes
   const siteCountEl = els.siteCountUsed.closest('.site-count');
   if (siteCountEl) {
     siteCountEl.classList.remove('site-count--warning', 'site-count--full');
-    if (!isPro) {
-      if (blocklist.length >= FREE_SITE_LIMIT) {
+    if (!proStatus) {
+      if (blocklist.length >= siteLimit) {
         siteCountEl.classList.add('site-count--full');
-      } else if (blocklist.length >= FREE_SITE_LIMIT * 0.7) {
+      } else if (blocklist.length >= siteLimit * 0.7) {
         siteCountEl.classList.add('site-count--warning');
       }
     }
@@ -495,9 +502,9 @@ function renderBlocklistTab(els, state) {
   }
 
   // Disable input if at limit
-  if (!isPro && blocklist.length >= FREE_SITE_LIMIT) {
+  if (!proStatus && blocklist.length >= siteLimit) {
     els.inputSite.disabled = true;
-    els.inputSite.placeholder = 'Blocklist full - Upgrade to Pro';
+    els.inputSite.placeholder = 'Upgrade to Pro for unlimited sites';
     els.btnAddSite.disabled = true;
   } else {
     els.inputSite.disabled = false;
@@ -935,8 +942,9 @@ function bindEvents(els, state) {
     }
 
     // Check limit
-    if (!state.isPro && (state.blocklist || []).length >= FREE_SITE_LIMIT) {
-      showToast(els, 'Blocklist full - Upgrade to Pro');
+    const siteMax = (state.proLimits && state.proLimits.maxSites) || DEFAULT_FREE_SITE_LIMIT;
+    if (!state.isPro && (state.blocklist || []).length >= siteMax) {
+      showToast(els, 'Upgrade to Pro for unlimited sites', 3000);
       return;
     }
 
@@ -948,6 +956,8 @@ function bindEvents(els, state) {
       els.inputSite.value = '';
       renderBlocklistTab(els, state);
       showToast(els, `Added ${domain}`);
+    } else if (response && response.limitReached) {
+      showToast(els, 'Upgrade to Pro for unlimited sites', 3000);
     } else {
       showToast(els, response?.error || 'Failed to add site');
     }
@@ -972,7 +982,11 @@ function bindEvents(els, state) {
       } else {
         // Revert toggle on failure
         els.toggleSocialMedia.checked = !els.toggleSocialMedia.checked;
-        showToast(els, response?.error || 'Failed to toggle list');
+        if (response && response.limitReached) {
+          showToast(els, 'Upgrade to Pro for unlimited prebuilt lists', 3000);
+        } else {
+          showToast(els, response?.error || 'Failed to toggle list');
+        }
       }
     });
   }
@@ -984,7 +998,11 @@ function bindEvents(els, state) {
         state.activePrebuiltLists = response.activePrebuiltLists || [];
       } else {
         els.toggleNews.checked = !els.toggleNews.checked;
-        showToast(els, response?.error || 'Failed to toggle list');
+        if (response && response.limitReached) {
+          showToast(els, 'Upgrade to Pro for unlimited prebuilt lists', 3000);
+        } else {
+          showToast(els, response?.error || 'Failed to toggle list');
+        }
       }
     });
   }
@@ -998,6 +1016,12 @@ function bindEvents(els, state) {
  * Main initialization function. Called once on DOMContentLoaded.
  */
 async function init() {
+  // Translate static strings from _locales via data-i18n attributes
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const msg = chrome.i18n.getMessage(el.dataset.i18n);
+    if (msg) el.textContent = msg;
+  });
+
   const els = cacheElements();
 
   // Request the full state from the service worker
@@ -1014,6 +1038,7 @@ async function init() {
       blocklist: [],
       activePrebuiltLists: [],
       isPro: false,
+      proLimits: { maxSites: DEFAULT_FREE_SITE_LIMIT, maxPrebuiltLists: DEFAULT_FREE_PREBUILT_LIMIT, maxSchedules: 1, nuclearMaxMinutes: 60, historyDays: 7 },
       sessionCount: 0,
       nuclearActive: false
     };
@@ -1085,3 +1110,41 @@ async function init() {
 // ---------------------------------------------------------------------------
 
 document.addEventListener('DOMContentLoaded', init);
+
+// Close the popup when Escape is pressed (unless focus is in an input)
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    window.close();
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Error Logging — send popup errors to service worker
+// ---------------------------------------------------------------------------
+
+window.onerror = function (message, source, lineno, colno, error) {
+  try {
+    chrome.runtime.sendMessage({
+      type: 'LOG_ERROR',
+      source: 'popup',
+      error: String(message),
+      context: { file: source, lineno, colno, stack: error?.stack?.slice(0, 500) || '' },
+    });
+  } catch (_) {
+    // Silently ignore if service worker is unavailable
+  }
+};
+
+window.addEventListener('unhandledrejection', (event) => {
+  try {
+    const reason = event.reason;
+    chrome.runtime.sendMessage({
+      type: 'LOG_ERROR',
+      source: 'popup',
+      error: reason instanceof Error ? reason.message : String(reason),
+      context: { handler: 'unhandledRejection', stack: reason?.stack?.slice(0, 500) || '' },
+    });
+  } catch (_) {
+    // Silently ignore
+  }
+});

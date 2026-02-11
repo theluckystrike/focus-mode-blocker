@@ -860,6 +860,81 @@ input[type="range"]:focus-visible {
   }
 }
 
+/* --- Debug Log --- */
+
+.debug-log {
+  margin-top: 20px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 16px;
+}
+
+.debug-log__toggle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
+  padding: 4px 0;
+}
+
+.debug-log__toggle:hover {
+  color: var(--text-secondary);
+}
+
+.debug-log__content {
+  margin-top: 12px;
+}
+
+.debug-log__empty {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.debug-log__list {
+  list-style: none;
+  max-height: 240px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+}
+
+.debug-log__item {
+  font-size: 11px;
+  font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
+  color: var(--text-secondary);
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border-color);
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.debug-log__item:last-child {
+  border-bottom: none;
+}
+
+.debug-log__time {
+  color: var(--text-muted);
+  margin-right: 6px;
+}
+
+.debug-log__source {
+  color: var(--color-primary);
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+.debug-log__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.btn--small {
+  padding: 6px 14px;
+  font-size: 12px;
+}
+
 /* --- Hidden utility --- */
 
 [hidden] {
@@ -878,6 +953,139 @@ input[type="checkbox"]:focus-visible {
   outline: none;
 }
 
+/* --- Options Toast --- */
+
+.options-toast {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100%);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  z-index: 1000;
+  transition: transform 200ms ease;
+  pointer-events: none;
+}
+
+.options-toast--visible {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* --- Upgrade Card --- */
+
+.card--upgrade {
+  position: relative;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  overflow: hidden;
+}
+
+.card--upgrade::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  z-index: -1;
+  border-radius: calc(var(--radius-lg) + 2px);
+  background: linear-gradient(135deg, #6366f1, #06b6d4, #8b5cf6, #ec4899);
+  background-size: 300% 300%;
+  animation: gradient-shift 6s ease infinite;
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.upgrade-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.upgrade-header h2 {
+  margin-bottom: 0;
+}
+
+.coming-soon-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #6366f1;
+  background: var(--color-primary-light);
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.upgrade-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+}
+
+.upgrade-features__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.upgrade-features__item svg {
+  flex-shrink: 0;
+  color: #22c55e;
+  margin-top: 2px;
+}
+
+.upgrade-features__item strong {
+  color: var(--text-primary);
+}
+
+.btn-upgrade {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: default;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #ffffff;
+  opacity: 0.7;
+  transition: opacity var(--transition-fast);
+}
+
+.btn-upgrade:disabled {
+  cursor: not-allowed;
+}
+
+/* --- Locked Duration Tooltip --- */
+
+.duration-option.locked {
+  position: relative;
+}
+
+.duration-option.locked .duration-chip {
+  cursor: pointer;
+}
+
 /* --- Reduced Motion --- */
 
 @media (prefers-reduced-motion: reduce) {
@@ -893,5 +1101,9 @@ input[type="checkbox"]:focus-visible {
   .duration-chip:active,
   .btn-danger:active {
     transform: none;
+  }
+
+  .card--upgrade::before {
+    animation: none;
   }
 }

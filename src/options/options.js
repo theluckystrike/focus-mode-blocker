@@ -5,6 +5,8 @@
  */
 
 import { getStorage, setStorage } from '../shared/storage.js';
+import { getErrorLog } from '../shared/error-logger.js';
+import { isPro } from '../shared/pro.js';
 
 // ---------------------------------------------------------------------------
 // DOM References
@@ -49,6 +51,23 @@ const els = {
 
   // About
   extensionVersion: $('#extensionVersion'),
+
+  // Debug Log
+  debugLogSection: $('#debugLogSection'),
+  debugLogEmpty: $('#debugLogEmpty'),
+  debugLogList: $('#debugLogList'),
+  debugLogCopy: $('#debugLogCopy'),
+  debugLogClear: $('#debugLogClear'),
+
+  // Toast
+  optionsToast: $('#optionsToast'),
+  optionsToastMessage: $('#optionsToastMessage'),
+
+  // Locked nuclear duration options
+  lockedDurations: $$('.duration-option.locked'),
+
+  // Upgrade section
+  upgradeProSection: $('#upgradeProSection'),
 };
 
 // ---------------------------------------------------------------------------
@@ -65,12 +84,80 @@ let nuclearCheckInterval = null;
 document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
+  // Translate static strings from _locales via data-i18n attributes
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const msg = chrome.i18n.getMessage(el.dataset.i18n);
+    if (msg) el.textContent = msg;
+  });
+
   await loadSettings();
   populateForm();
   bindEvents();
   applyTheme(currentSettings.theme || 'system');
   checkNuclearStatus();
   showVersion();
+  initDebugLog();
+  initLockedDurations();
+  await initProSection();
+}
+
+// ---------------------------------------------------------------------------
+// Options Toast
+// ---------------------------------------------------------------------------
+
+let optionsToastTimeout = null;
+
+function showOptionsToast(text, durationMs = 2500) {
+  if (!els.optionsToast || !els.optionsToastMessage) return;
+  clearTimeout(optionsToastTimeout);
+  els.optionsToastMessage.textContent = text;
+  els.optionsToast.removeAttribute('hidden');
+  void els.optionsToast.offsetWidth;
+  els.optionsToast.classList.add('options-toast--visible');
+  optionsToastTimeout = setTimeout(() => {
+    els.optionsToast.classList.remove('options-toast--visible');
+    setTimeout(() => {
+      if (!els.optionsToast.classList.contains('options-toast--visible')) {
+        els.optionsToast.setAttribute('hidden', '');
+      }
+    }, 300);
+  }, durationMs);
+}
+
+// ---------------------------------------------------------------------------
+// Locked Nuclear Duration Click Handlers
+// ---------------------------------------------------------------------------
+
+function initLockedDurations() {
+  for (const label of els.lockedDurations) {
+    label.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      showOptionsToast('Upgrade to Pro for extended nuclear durations', 3000);
+    });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Pro Upgrade Section
+// ---------------------------------------------------------------------------
+
+async function initProSection() {
+  const proStatus = await isPro();
+  if (proStatus && els.upgradeProSection) {
+    // Hide upgrade section for Pro users
+    els.upgradeProSection.hidden = true;
+  }
+
+  // Also unlock nuclear duration options for Pro users
+  if (proStatus) {
+    for (const label of els.lockedDurations) {
+      label.classList.remove('locked');
+      label.removeAttribute('aria-disabled');
+      const input = label.querySelector('input');
+      if (input) input.disabled = false;
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -152,12 +239,35 @@ function bindEvents() {
   els.confirmDialog.addEventListener('click', (e) => {
     if (e.target === els.confirmDialog) {
       els.confirmDialog.close();
+      els.nuclearActivateBtn.focus();
     }
   });
 
-  // Close dialog on Escape
-  els.confirmDialog.addEventListener('cancel', (e) => {
-    // Default behavior is fine; dialog closes.
+  // Restore focus when dialog closes via Escape
+  els.confirmDialog.addEventListener('cancel', () => {
+    els.nuclearActivateBtn.focus();
+  });
+
+  // Explicit focus trap within the dialog for Tab key
+  els.confirmDialog.addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab') return;
+    const focusable = els.confirmDialog.querySelectorAll(
+      'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey) {
+      if (document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      }
+    } else {
+      if (document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
   });
 }
 
@@ -307,10 +417,14 @@ function onNuclearClick() {
   const duration = getSelectedNuclearDuration();
   els.confirmDuration.textContent = getDurationLabel(duration);
   els.confirmDialog.showModal();
+  // Focus the cancel button by default for safety
+  els.confirmCancel.focus();
 }
 
 function onConfirmCancel() {
   els.confirmDialog.close();
+  // Restore focus to the activate button
+  els.nuclearActivateBtn.focus();
 }
 
 async function onConfirmActivate() {
@@ -412,5 +526,89 @@ function showVersion() {
   } catch (err) {
     // Fallback if running outside extension context
     els.extensionVersion.textContent = '1.0.0';
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Debug Log
+// ---------------------------------------------------------------------------
+
+function initDebugLog() {
+  if (!els.debugLogSection) return;
+
+  // Load log when the details element is opened
+  els.debugLogSection.addEventListener('toggle', () => {
+    if (els.debugLogSection.open) {
+      renderDebugLog();
+    }
+  });
+
+  els.debugLogCopy.addEventListener('click', onCopyLog);
+  els.debugLogClear.addEventListener('click', onClearLog);
+}
+
+async function renderDebugLog() {
+  try {
+    const log = await getErrorLog();
+    els.debugLogList.replaceChildren();
+
+    // Show last 10 entries, newest first
+    const recent = log.slice(-10).reverse();
+
+    if (recent.length === 0) {
+      els.debugLogEmpty.hidden = false;
+      return;
+    }
+
+    els.debugLogEmpty.hidden = true;
+
+    for (const entry of recent) {
+      const li = document.createElement('li');
+      li.className = 'debug-log__item';
+
+      const time = document.createElement('span');
+      time.className = 'debug-log__time';
+      time.textContent = new Date(entry.ts).toLocaleString();
+
+      const src = document.createElement('span');
+      src.className = 'debug-log__source';
+      src.textContent = `[${entry.src}]`;
+
+      const msg = document.createElement('span');
+      msg.textContent = entry.msg;
+
+      li.appendChild(time);
+      li.appendChild(src);
+      li.appendChild(msg);
+      els.debugLogList.appendChild(li);
+    }
+  } catch (err) {
+    console.warn('Failed to load debug log:', err);
+  }
+}
+
+async function onCopyLog() {
+  try {
+    const log = await getErrorLog();
+    const text = log.map(e => {
+      const t = new Date(e.ts).toISOString();
+      return `${t} [${e.src}] ${e.msg}${e.stack ? '\n  ' + e.stack : ''}`;
+    }).join('\n');
+
+    await navigator.clipboard.writeText(text || 'No errors recorded.');
+    els.debugLogCopy.textContent = 'Copied!';
+    setTimeout(() => { els.debugLogCopy.textContent = 'Copy Log'; }, 1500);
+  } catch (err) {
+    console.warn('Failed to copy log:', err);
+  }
+}
+
+async function onClearLog() {
+  try {
+    await chrome.storage.local.set({ errorLog: [] });
+    els.debugLogList.replaceChildren();
+    els.debugLogEmpty.hidden = false;
+  } catch (err) {
+    console.warn('Failed to clear log:', err);
   }
 }

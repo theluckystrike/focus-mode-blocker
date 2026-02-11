@@ -45,7 +45,11 @@ const DEFAULTS = {
   // Onboarding
   onboardingComplete: false,
   installDate: null,
-  sessionCount: 0
+  sessionCount: 0,
+
+  // Churn prevention tracking
+  lastStreakReminder: null,    // ISO date string of last streak protection notification
+  lastReengagementNotice: null // ISO date string of last re-engagement notification
 };
 
 /**
@@ -174,14 +178,16 @@ export async function recordSession(session) {
   const focusScore = calculateFocusScore(stats, updatedStreak);
   stats.focusScore = focusScore;
 
+  const newSessionCount = sessionCount + 1;
+
   await setStorage({
     todayStats: stats,
     sessionHistory: prunedHistory,
-    sessionCount: sessionCount + 1,
+    sessionCount: newSessionCount,
     streak: updatedStreak
   });
 
-  return { stats, streak: updatedStreak, focusScore };
+  return { stats, streak: updatedStreak, focusScore, newSessionCount };
 }
 
 /**

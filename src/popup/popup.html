@@ -18,7 +18,7 @@
       <svg class="header__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
       </svg>
-      <h1 class="header__title">Focus Mode</h1>
+      <h1 class="header__title" data-i18n="headerTitle">Focus Mode</h1>
       <span id="pro-badge" class="badge badge--pro" hidden>PRO</span>
     </div>
     <div class="header__right">
@@ -38,13 +38,13 @@
         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
         <polyline points="9 22 9 12 15 12 15 22"/>
       </svg>
-      <span class="tab__label">Home</span>
+      <span class="tab__label" data-i18n="tabHome">Home</span>
     </button>
     <button class="tab" role="tab" id="tab-blocklist" aria-selected="false" aria-controls="panel-blocklist" tabindex="-1">
       <svg class="tab__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
       </svg>
-      <span class="tab__label">Blocklist</span>
+      <span class="tab__label" data-i18n="tabBlocklist">Blocklist</span>
     </button>
     <button class="tab" role="tab" id="tab-stats" aria-selected="false" aria-controls="panel-stats" tabindex="-1">
       <svg class="tab__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -52,7 +52,7 @@
         <line x1="12" y1="20" x2="12" y2="4"/>
         <line x1="6" y1="20" x2="6" y2="14"/>
       </svg>
-      <span class="tab__label">Stats</span>
+      <span class="tab__label" data-i18n="tabStats">Stats</span>
     </button>
   </nav>
 
@@ -66,7 +66,7 @@
       <div id="state-idle" class="state">
         <!-- Onboarding Welcome (shown for first-time users) -->
         <div id="onboarding-welcome" class="onboarding-welcome" hidden>
-          <p class="onboarding-welcome__text">Welcome! Add sites to block, then start your first focus session.</p>
+          <p class="onboarding-welcome__text" data-i18n="onboardingWelcome">Welcome! Add sites to block, then start your first focus session.</p>
         </div>
 
         <!-- Quick Focus Button -->
@@ -74,7 +74,7 @@
           <svg class="btn__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
           </svg>
-          Quick Focus
+          <span data-i18n="quickFocus">Quick Focus</span>
         </button>
 
         <!-- Quick Duration Row -->
@@ -92,19 +92,19 @@
 
         <!-- Today's Stats Card -->
         <div class="card stats-card" aria-label="Today's statistics">
-          <h2 class="card__heading">Today</h2>
+          <h2 class="card__heading" data-i18n="todayHeading">Today</h2>
           <div class="stats-grid">
             <div class="stat-item">
               <span class="stat-item__value" id="stat-focus-time">0m</span>
-              <span class="stat-item__label">Focus time</span>
+              <span class="stat-item__label" data-i18n="labelFocusTime">Focus time</span>
             </div>
             <div class="stat-item">
               <span class="stat-item__value" id="stat-blocks">0</span>
-              <span class="stat-item__label">Blocks</span>
+              <span class="stat-item__label" data-i18n="labelBlocks">Blocks</span>
             </div>
             <div class="stat-item">
               <span class="stat-item__value" id="stat-attempts">0</span>
-              <span class="stat-item__label">Attempts</span>
+              <span class="stat-item__label" data-i18n="labelAttempts">Attempts</span>
             </div>
           </div>
         </div>
@@ -122,7 +122,7 @@
                 <span class="focus-score__number" id="score-number">0</span>
               </div>
             </div>
-            <span class="focus-score__label">Focus Score</span>
+            <span class="focus-score__label" data-i18n="labelFocusScore">Focus Score</span>
           </div>
 
           <!-- Streak -->
@@ -133,7 +133,7 @@
               </svg>
               <span class="streak__count" id="streak-count">0</span>
             </div>
-            <span class="streak__label">Day streak</span>
+            <span class="streak__label" data-i18n="labelDayStreak">Day streak</span>
           </div>
         </div>
       </div>
@@ -147,7 +147,7 @@
           </svg>
           <div class="timer__inner">
             <span class="timer__time" id="timer-display">25:00</span>
-            <span class="timer__status">Focusing</span>
+            <span class="timer__status" data-i18n="statusFocusing">Focusing</span>
           </div>
         </div>
 
@@ -155,7 +155,7 @@
           <svg class="btn__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <rect x="6" y="6" width="12" height="12" rx="2"/>
           </svg>
-          Stop Session
+          <span data-i18n="stopSession">Stop Session</span>
         </button>
 
         <div class="session-meta">
@@ -182,30 +182,30 @@
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
             <polyline points="22 4 12 14.01 9 11.01"/>
           </svg>
-          <h2 class="post-summary__title">Session Complete!</h2>
+          <h2 class="post-summary__title" data-i18n="sessionComplete">Session Complete!</h2>
 
           <div class="post-summary__stats">
             <div class="post-summary__stat">
               <span class="post-summary__stat-value" id="post-duration">25:00</span>
-              <span class="post-summary__stat-label">Duration</span>
+              <span class="post-summary__stat-label" data-i18n="labelDuration">Duration</span>
             </div>
             <div class="post-summary__stat">
               <span class="post-summary__stat-value" id="post-blocks">0</span>
-              <span class="post-summary__stat-label">Blocked</span>
+              <span class="post-summary__stat-label" data-i18n="labelBlocked">Blocked</span>
             </div>
             <div class="post-summary__stat">
               <span class="post-summary__stat-value" id="post-score">+5</span>
-              <span class="post-summary__stat-label">Score</span>
+              <span class="post-summary__stat-label" data-i18n="labelScore">Score</span>
             </div>
           </div>
         </div>
 
         <div class="post-actions">
           <button id="btn-start-another" class="btn btn--primary" aria-label="Start another focus session">
-            Start Another
+            <span data-i18n="startAnother">Start Another</span>
           </button>
           <button id="btn-take-break" class="btn btn--secondary" aria-label="Take a break">
-            Take a Break
+            <span data-i18n="takeABreak">Take a Break</span>
           </button>
         </div>
       </div>
@@ -227,7 +227,7 @@
           aria-label="Website domain to block"
         >
         <button id="btn-add-site" class="btn btn--primary btn--sm" aria-label="Add site to blocklist">
-          Add
+          <span data-i18n="buttonAdd">Add</span>
         </button>
       </div>
 
@@ -241,7 +241,7 @@
 
       <!-- Manual Sites List -->
       <div class="blocklist-section">
-        <h2 class="blocklist-section__heading">Your sites</h2>
+        <h2 class="blocklist-section__heading" data-i18n="headingYourSites">Your sites</h2>
         <ul id="manual-sites-list" class="site-list" role="list" aria-label="Manually blocked websites">
           <!-- Populated by JS. Example item structure:
           <li class="site-list__item" data-domain="twitter.com">
@@ -253,12 +253,12 @@
           </li>
           -->
         </ul>
-        <p id="empty-blocklist-msg" class="empty-state" hidden>No sites blocked yet. Add distracting websites above to block them during focus sessions.</p>
+        <p id="empty-blocklist-msg" class="empty-state" data-i18n="emptyBlocklist" hidden>No sites blocked yet. Add distracting websites above to block them during focus sessions.</p>
       </div>
 
       <!-- Pre-built Lists -->
       <div class="blocklist-section">
-        <h2 class="blocklist-section__heading">Pre-built lists</h2>
+        <h2 class="blocklist-section__heading" data-i18n="headingPrebuiltLists">Pre-built lists</h2>
         <ul class="preset-list" role="list" aria-label="Pre-built blocklists">
           <li class="preset-list__item">
             <div class="preset-list__info">
@@ -337,8 +337,8 @@
             <span class="focus-score__number focus-score__number--lg" id="stats-score-number">0</span>
           </div>
         </div>
-        <h2 class="stats-hero__title">Focus Score</h2>
-        <p id="stats-empty-msg" class="stats-empty-msg" hidden>Start your first session today!</p>
+        <h2 class="stats-hero__title" data-i18n="labelFocusScore">Focus Score</h2>
+        <p id="stats-empty-msg" class="stats-empty-msg" data-i18n="statsEmptyMsg" hidden>Start your first session today!</p>
       </div>
 
       <!-- Today's Focus Time -->
@@ -370,7 +370,7 @@
 
       <!-- Top Distraction Sites -->
       <div class="card">
-        <h3 class="card__heading">Top distractions</h3>
+        <h3 class="card__heading" data-i18n="headingTopDistractions">Top distractions</h3>
         <ol id="top-sites-list" class="top-sites" role="list" aria-label="Most visited blocked sites">
           <!-- Populated by JS. Example:
           <li class="top-sites__item">
@@ -380,7 +380,7 @@
           </li>
           -->
         </ol>
-        <p id="no-distractions-msg" class="empty-state">No distractions recorded today.</p>
+        <p id="no-distractions-msg" class="empty-state" data-i18n="noDistractions">No distractions recorded today.</p>
       </div>
 
       <!-- Streak -->

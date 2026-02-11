@@ -32,6 +32,12 @@ const attemptParam = params.get('attempt') || '';
 init();
 
 async function init() {
+  // Translate static strings from _locales via data-i18n attributes
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const msg = chrome.i18n.getMessage(el.dataset.i18n);
+    if (msg) el.textContent = msg;
+  });
+
   currentDomain = domain;
 
   // Set dynamic page title and favicon
@@ -263,6 +269,7 @@ function handleOverrideClick() {
   overrideBtn.parentElement.appendChild(confirmEl);
 
   cancelBtn.addEventListener('click', () => {
+    confirmEl.removeEventListener('keydown', trapFocus);
     confirmEl.remove();
     overrideBtn.hidden = false;
     overrideBtn.focus();
@@ -275,6 +282,36 @@ function handleOverrideClick() {
     // Navigate to the site
     const targetUrl = `https://${currentDomain}`;
     window.location.href = targetUrl;
+  });
+
+  // Focus trap: Tab key cycles only within the confirmation dialog
+  function trapFocus(e) {
+    if (e.key !== 'Tab') return;
+    const focusable = confirmEl.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey) {
+      if (document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      }
+    } else {
+      if (document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  }
+  confirmEl.addEventListener('keydown', trapFocus);
+
+  // Escape key dismisses the confirmation dialog
+  confirmEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      confirmEl.removeEventListener('keydown', trapFocus);
+      confirmEl.remove();
+      overrideBtn.hidden = false;
+      overrideBtn.focus();
+    }
   });
 
   // Focus the cancel button for accessibility

@@ -18,11 +18,11 @@
     </div>
 
     <!-- Heading -->
-    <h1 class="heading">Stay Focused</h1>
+    <h1 class="heading" data-i18n="blockedHeading">Stay Focused</h1>
 
     <!-- Domain Message -->
     <p class="domain-message">
-      <span id="domain-name" class="domain-highlight">this site</span> is blocked during your focus session
+      <span id="domain-name" class="domain-highlight" role="alert">this site</span> is blocked during your focus session
     </p>
 
     <!-- Timer Section (hidden when no active session) -->
@@ -35,7 +35,7 @@
         </svg>
       </div>
       <span id="timer-display" class="timer-display" aria-live="polite">--:--</span>
-      <span class="timer-label">remaining</span>
+      <span class="timer-label" data-i18n="timerRemaining">remaining</span>
     </section>
 
     <!-- Stats Cards -->
@@ -48,7 +48,7 @@
           </svg>
         </span>
         <span id="streak-count" class="stat-number">0</span>
-        <span class="stat-label">Day Streak</span>
+        <span class="stat-label" data-i18n="blockedDayStreak">Day Streak</span>
       </div>
 
       <div class="stat-card stat-card--saved">
@@ -59,7 +59,7 @@
           </svg>
         </span>
         <span id="saved-time" class="stat-number">0<small>min</small></span>
-        <span class="stat-label">Focused</span>
+        <span class="stat-label" data-i18n="blockedFocused">Focused</span>
       </div>
 
       <div class="stat-card stat-card--blocked">
@@ -70,7 +70,7 @@
           </svg>
         </span>
         <span id="blocked-count" class="stat-number">0</span>
-        <span class="stat-label">Blocked Today</span>
+        <span class="stat-label" data-i18n="blockedBlockedToday">Blocked Today</span>
       </div>
     </section>
 
@@ -90,10 +90,10 @@
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <path d="M15 9H3M3 9L8 4M3 9L8 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        Return to Work
+        <span data-i18n="returnToWork">Return to Work</span>
       </button>
 
-      <button id="override-btn" class="btn-override" type="button" hidden>
+      <button id="override-btn" class="btn-override" type="button" data-i18n="overrideButton" hidden>
         Continue to site anyway
       </button>
     </div>

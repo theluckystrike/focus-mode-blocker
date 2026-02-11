@@ -27,15 +27,15 @@
           <line x1="80" y1="62" x2="96" y2="62" stroke="white" stroke-width="3" stroke-linecap="round" opacity="0.9" />
         </svg>
       </div>
-      <h1>Focus Mode Settings</h1>
+      <h1 data-i18n="optionsHeading">Focus Mode Settings</h1>
     </header>
 
     <!-- ===== General Settings ===== -->
     <section class="card" aria-labelledby="general-heading">
-      <h2 id="general-heading">General</h2>
+      <h2 id="general-heading" data-i18n="headingGeneral">General</h2>
 
       <fieldset class="setting-group">
-        <legend>Theme</legend>
+        <legend data-i18n="legendTheme">Theme</legend>
         <div class="radio-group" role="radiogroup" aria-label="Theme selection">
           <label class="radio-label">
             <input type="radio" name="theme" value="light">
@@ -57,8 +57,8 @@
 
       <div class="setting-row">
         <div class="setting-info">
-          <label for="soundToggle">Ambient sound during sessions</label>
-          <span class="setting-desc">Play calming audio while focusing</span>
+          <label for="soundToggle" data-i18n="labelAmbientSound">Ambient sound during sessions</label>
+          <span class="setting-desc" data-i18n="descAmbientSound">Play calming audio while focusing</span>
         </div>
         <label class="toggle" aria-label="Toggle ambient sound">
           <input type="checkbox" id="soundToggle">
@@ -68,7 +68,7 @@
 
       <div class="setting-row sub-setting" id="soundOptions" hidden>
         <div class="setting-info">
-          <label for="soundSelector">Sound type</label>
+          <label for="soundSelector" data-i18n="labelSoundType">Sound type</label>
         </div>
         <select id="soundSelector" aria-label="Select ambient sound type">
           <option value="rain">Rain</option>
@@ -79,7 +79,7 @@
 
       <div class="setting-row sub-setting" id="volumeRow" hidden>
         <div class="setting-info">
-          <label for="volumeSlider">Volume</label>
+          <label for="volumeSlider" data-i18n="labelVolume">Volume</label>
           <span class="setting-desc" id="volumeValue">70%</span>
         </div>
         <input type="range" id="volumeSlider" min="0" max="100" value="70" aria-label="Volume level" aria-valuemin="0" aria-valuemax="100">
@@ -87,8 +87,8 @@
 
       <div class="setting-row">
         <div class="setting-info">
-          <label for="mutingToggle">Mute notifications during sessions</label>
-          <span class="setting-desc">Suppress browser notifications while focusing</span>
+          <label for="mutingToggle" data-i18n="labelMuteNotifications">Mute notifications during sessions</label>
+          <span class="setting-desc" data-i18n="descMuteNotifications">Suppress browser notifications while focusing</span>
         </div>
         <label class="toggle" aria-label="Toggle notification muting">
           <input type="checkbox" id="mutingToggle">
@@ -99,12 +99,12 @@
 
     <!-- ===== Blocking Schedule ===== -->
     <section class="card" aria-labelledby="schedule-heading">
-      <h2 id="schedule-heading">Blocking Schedule</h2>
+      <h2 id="schedule-heading" data-i18n="headingSchedule">Blocking Schedule</h2>
 
       <div class="setting-row">
         <div class="setting-info">
-          <label for="scheduleToggle">Enable scheduled blocking</label>
-          <span class="setting-desc">Automatically block sites on a recurring schedule</span>
+          <label for="scheduleToggle" data-i18n="labelEnableSchedule">Enable scheduled blocking</label>
+          <span class="setting-desc" data-i18n="descEnableSchedule">Automatically block sites on a recurring schedule</span>
         </div>
         <label class="toggle" aria-label="Toggle blocking schedule">
           <input type="checkbox" id="scheduleToggle">
@@ -114,7 +114,7 @@
 
       <div id="scheduleOptions" hidden>
         <fieldset class="setting-group">
-          <legend>Active days</legend>
+          <legend data-i18n="legendActiveDays">Active days</legend>
           <div class="days-group" role="group" aria-label="Select active days">
             <label class="day-checkbox">
               <input type="checkbox" name="scheduleDay" value="1">
@@ -149,12 +149,12 @@
 
         <div class="time-row">
           <div class="time-field">
-            <label for="startTime">Start time</label>
+            <label for="startTime" data-i18n="labelStartTime">Start time</label>
             <input type="time" id="startTime" value="09:00">
           </div>
           <span class="time-separator" aria-hidden="true">to</span>
           <div class="time-field">
-            <label for="endTime">End time</label>
+            <label for="endTime" data-i18n="labelEndTime">End time</label>
             <input type="time" id="endTime" value="17:00">
           </div>
         </div>
@@ -168,13 +168,13 @@
 
     <!-- ===== Nuclear Mode ===== -->
     <section class="card" aria-labelledby="nuclear-heading">
-      <h2 id="nuclear-heading">Nuclear Mode</h2>
-      <p class="section-desc">
+      <h2 id="nuclear-heading" data-i18n="headingNuclear">Nuclear Mode</h2>
+      <p class="section-desc" id="nuclear-desc">
         Lock your blocklist for a set duration. Once activated, blocking <strong>cannot be turned off</strong> until the timer expires. No exceptions.
       </p>
 
       <fieldset class="setting-group">
-        <legend>Duration</legend>
+        <legend data-i18n="legendNuclearDuration">Duration</legend>
         <div class="duration-grid" role="radiogroup" aria-label="Nuclear mode duration">
           <label class="duration-option">
             <input type="radio" name="nuclearDuration" value="15">
@@ -212,37 +212,37 @@
       </fieldset>
 
       <div class="nuclear-status" id="nuclearStatus" hidden>
-        <div class="nuclear-active-badge">NUCLEAR MODE ACTIVE</div>
+        <div class="nuclear-active-badge" data-i18n="nuclearActive">NUCLEAR MODE ACTIVE</div>
         <p id="nuclearTimeRemaining"></p>
       </div>
 
-      <button type="button" class="btn btn-danger" id="nuclearActivateBtn">
+      <button type="button" class="btn btn-danger" id="nuclearActivateBtn" data-i18n="activateNuclearMode" aria-describedby="nuclear-desc">
         Activate Nuclear Mode
       </button>
     </section>
 
     <!-- ===== About ===== -->
     <section class="card" aria-labelledby="about-heading">
-      <h2 id="about-heading">About</h2>
+      <h2 id="about-heading" data-i18n="headingAbout">About</h2>
 
       <div class="about-info">
         <div class="about-row">
-          <span class="about-label">Extension</span>
+          <span class="about-label" data-i18n="aboutExtension">Extension</span>
           <span class="about-value">Focus Mode - Blocker</span>
         </div>
         <div class="about-row">
-          <span class="about-label">Version</span>
+          <span class="about-label" data-i18n="aboutVersion">Version</span>
           <span class="about-value" id="extensionVersion">1.0.0</span>
         </div>
         <div class="about-row">
-          <span class="about-label">Made by</span>
+          <span class="about-label" data-i18n="aboutMadeBy">Made by</span>
           <span class="about-value">
             <a href="https://zovo.dev" target="_blank" rel="noopener noreferrer" class="about-link">Zovo</a>
           </span>
         </div>
         <div class="about-row">
-          <span class="about-label">Privacy</span>
-          <span class="about-value">All data stays on your device</span>
+          <span class="about-label" data-i18n="aboutPrivacy">Privacy</span>
+          <span class="about-value" data-i18n="aboutPrivacyValue">All data stays on your device</span>
         </div>
       </div>
 
@@ -254,20 +254,76 @@
           Support
         </a>
       </div>
+
+      <!-- Debug Log (expandable) -->
+      <details class="debug-log" id="debugLogSection">
+        <summary class="debug-log__toggle">Debug Log</summary>
+        <div class="debug-log__content">
+          <p class="debug-log__empty" id="debugLogEmpty">No errors recorded.</p>
+          <ul class="debug-log__list" id="debugLogList"></ul>
+          <div class="debug-log__actions">
+            <button type="button" class="btn btn-secondary btn--small" id="debugLogCopy">Copy Log</button>
+            <button type="button" class="btn btn-secondary btn--small" id="debugLogClear">Clear Log</button>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <!-- ===== Upgrade to Pro ===== -->
+    <section class="card card--upgrade" aria-labelledby="upgrade-heading" id="upgradeProSection">
+      <div class="upgrade-header">
+        <h2 id="upgrade-heading">Upgrade to Pro</h2>
+        <span class="coming-soon-badge">Coming Soon</span>
+      </div>
+      <p class="section-desc">Unlock the full power of Focus Mode with Pro features:</p>
+      <ul class="upgrade-features" role="list">
+        <li class="upgrade-features__item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          <span><strong>Unlimited blocked sites</strong> (free: 10)</span>
+        </li>
+        <li class="upgrade-features__item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          <span><strong>All pre-built blocklists</strong> including Entertainment, Gaming, Shopping</span>
+        </li>
+        <li class="upgrade-features__item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          <span><strong>Extended Nuclear Mode</strong> up to 24 hours</span>
+        </li>
+        <li class="upgrade-features__item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          <span><strong>Unlimited schedules</strong> for automated blocking</span>
+        </li>
+        <li class="upgrade-features__item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          <span><strong>90-day focus history</strong> and weekly reports</span>
+        </li>
+        <li class="upgrade-features__item">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          <span><strong>Custom session durations</strong> with flexible timers</span>
+        </li>
+      </ul>
+      <button type="button" class="btn btn-upgrade" id="upgradeProBtn" disabled>
+        Coming Soon
+      </button>
     </section>
   </main>
+
+  <!-- Toast notification for upgrade messages -->
+  <div id="optionsToast" class="options-toast" role="status" aria-live="polite" hidden>
+    <span id="optionsToastMessage"></span>
+  </div>
 
   <!-- Confirmation Dialog -->
   <dialog id="confirmDialog" class="confirm-dialog" aria-labelledby="confirmTitle" aria-describedby="confirmDesc">
     <div class="dialog-content">
-      <h3 id="confirmTitle">Activate Nuclear Mode?</h3>
+      <h3 id="confirmTitle" data-i18n="dialogNuclearTitle">Activate Nuclear Mode?</h3>
       <p id="confirmDesc">
         This will lock your blocklist for <strong id="confirmDuration">30 minutes</strong>.
         You will <strong>not</strong> be able to turn it off early. Are you sure?
       </p>
       <div class="dialog-actions">
-        <button type="button" class="btn btn-secondary" id="confirmCancel">Cancel</button>
-        <button type="button" class="btn btn-danger" id="confirmActivate">Activate</button>
+        <button type="button" class="btn btn-secondary" id="confirmCancel" data-i18n="dialogNuclearCancel">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmActivate" data-i18n="dialogNuclearActivate">Activate</button>
       </div>
     </div>
   </dialog>
